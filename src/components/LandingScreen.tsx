@@ -53,9 +53,6 @@ export default function LandingScreen({ onStart }: Props) {
           >
             Start Learning
           </button>
-          <button className="px-10 py-5 glass-card text-on-surface font-bold text-lg rounded-2xl hover:bg-surface-container-highest transition-all flex items-center gap-3">
-            View Live Demo
-          </button>
         </div>
       </motion.div>
 

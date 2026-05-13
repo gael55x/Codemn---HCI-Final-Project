@@ -19,11 +19,15 @@ import {
   Send,
   Zap,
   Menu,
-  Bot
+  Bot,
+  User,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ScreenType } from './types';
+import { ScreenType } from '../types';
 import { askMentor } from '../services/geminiService';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -40,10 +44,11 @@ interface Message {
 
 export default function AppLayout({ children, activeScreen, setScreen, isAIExpanded, setAIExpanded }: LayoutProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'ai', text: 'Welcome back Miguel! I see you were exploring array iteration last night. Ready to tackle .reduce() today?' }
+    { role: 'ai', text: 'Welcome back Gaille! I see you were exploring array iteration last night. Ready to tackle .reduce() today?' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -104,21 +109,26 @@ export default function AppLayout({ children, activeScreen, setScreen, isAIExpan
         </nav>
 
         <div className="mt-auto space-y-4 pt-8 border-t border-outline-variant/10">
-          <div className="p-4 glass-card rounded-2xl relative overflow-hidden group border-tertiary/20">
-            <div className="absolute -right-4 -top-4 w-12 h-12 bg-tertiary/10 rounded-full blur-xl group-hover:scale-150 transition-transform" />
-            <p className="text-[10px] font-bold text-tertiary uppercase tracking-widest mb-1">Premium Access</p>
-            <p className="text-xs text-on-surface-variant mb-3">Priority AI mentoring activated.</p>
-            <button className="w-full py-2 bg-tertiary text-surface font-bold rounded-lg text-xs hover:brightness-110 active:scale-95 transition-all">
-              Go Pro
-            </button>
-          </div>
-          
           <div className="space-y-1">
-            <button className="w-full flex items-center gap-4 px-4 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all">
+            <button 
+              onClick={() => setScreen('settings')}
+              className={`w-full flex items-center gap-4 px-4 py-2 rounded-xl transition-all ${
+                activeScreen === 'settings' 
+                ? 'bg-primary/10 text-primary' 
+                : 'text-on-surface-variant hover:bg-surface-container-high'
+              }`}
+            >
               <Settings size={20} />
               <span className="text-sm font-medium">Settings</span>
             </button>
-            <button className="w-full flex items-center gap-4 px-4 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all">
+            <button 
+              onClick={() => setScreen('support')}
+              className={`w-full flex items-center gap-4 px-4 py-2 rounded-xl transition-all ${
+                activeScreen === 'support' 
+                ? 'bg-primary/10 text-primary' 
+                : 'text-on-surface-variant hover:bg-surface-container-high'
+              }`}
+            >
               <HelpCircle size={20} />
               <span className="text-sm font-medium">Support</span>
             </button>
@@ -138,6 +148,14 @@ export default function AppLayout({ children, activeScreen, setScreen, isAIExpan
         </div>
 
         <div className="flex items-center gap-6">
+          <button
+            onClick={toggleTheme}
+            className="w-10 h-10 rounded-full bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-center"
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? <Sun size={20} className="text-on-surface-variant" /> : <Moon size={20} className="text-on-surface-variant" />}
+          </button>
+          
           <div className="flex items-center gap-4 border-r border-outline-variant/20 pr-6">
             <div className="flex items-center gap-1 text-error">
               <Flame size={20} fill="currentColor" stroke="none" className="animate-pulse" />
@@ -151,15 +169,10 @@ export default function AppLayout({ children, activeScreen, setScreen, isAIExpan
 
           <button className="flex items-center gap-3 group">
             <div className="text-right">
-              <p className="text-xs font-bold leading-tight">Miguel Santos</p>
-              <p className="text-[10px] text-secondary uppercase tracking-widest font-bold">Pro Member</p>
+              <p className="text-xs font-bold leading-tight">Gaille Ivan Anoos</p>
             </div>
-            <div className="w-10 h-10 rounded-full border-2 border-primary/30 group-hover:border-primary transition-colors overflow-hidden p-0.5">
-              <img 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqNcUVFnwURgQa2wAX4I5QtL7H64N4X_M26zZaltTHuAoBu1PZpKt33LH-x-h4fPtqfuB9aiHsxMA53gRVHN3BMkWh9VvsvG9quBTOYAmz3LZvmQsAq1vy1ocil_jpGrYaAXlGYmSuwhcxaLY6ZtW8nDEjYzUMoiRmyAuDXotAmL4bkLrKsCHUZijMF5XTi4VbtrQJcDCgiIrQXj2-7b2M5sRM-91jOdoB8CMQWMoTtdlwAficnwMJGbEujx6a6dtnk2Fyq1pR3To" 
-                alt="Profile" 
-                className="w-full h-full rounded-full object-cover"
-              />
+            <div className="w-10 h-10 rounded-full border-2 border-primary/30 group-hover:border-primary transition-colors bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+              <User size={20} className="text-white" />
             </div>
           </button>
         </div>

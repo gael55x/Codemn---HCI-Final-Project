@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Terminal, Layout, CheckCircle, Lock, ShieldCheck, ArrowRight, Cpu } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  Terminal, 
+  Layout, 
+  CheckCircle, 
+  Lock, 
+  ShieldCheck, 
+  ArrowRight, 
+  Cpu,
+  Code2,
+  Target,
+  Clock,
+  Zap
+} from 'lucide-react';
 
 interface Props {
   onComplete: () => void;
@@ -8,13 +20,70 @@ interface Props {
 
 export default function OnboardingScreen({ onComplete }: Props) {
   const [step, setStep] = useState(1);
-  const [selection, setSelection] = useState<string | null>(null);
+  const [selections, setSelections] = useState({
+    level: null as string | null,
+    path: null as string | null,
+    goal: null as string | null,
+    time: null as string | null
+  });
 
-  const levels = [
-    { id: 'beginner', title: 'Beginner', desc: 'New to logic or starting a first language.', icon: <Terminal className="text-secondary" /> },
-    { id: 'intermediate', title: 'Intermediate', desc: 'Comfortable with syntax, learning architecture.', icon: <Cpu className="text-secondary" /> },
-    { id: 'advanced', title: 'Advanced', desc: 'Expert in logic, focusing on optimization.', icon: <Layout className="text-secondary" /> },
+  const steps = [
+    {
+      title: 'Choose your mastery',
+      subtitle: "We'll tailor your exercises to your starting point.",
+      options: [
+        { id: 'beginner', title: 'Beginner', desc: 'New to logic or starting a first language.', icon: <Terminal className="text-secondary" /> },
+        { id: 'intermediate', title: 'Intermediate', desc: 'Comfortable with syntax, learning architecture.', icon: <Cpu className="text-secondary" /> },
+        { id: 'advanced', title: 'Advanced', desc: 'Expert in logic, focusing on optimization.', icon: <Layout className="text-secondary" /> },
+      ],
+      key: 'level' as const
+    },
+    {
+      title: 'Select your learning path',
+      subtitle: 'Choose the area you want to focus on.',
+      options: [
+        { id: 'frontend', title: 'Frontend Development', desc: 'React, JavaScript, and modern UI frameworks.', icon: <Code2 className="text-primary" /> },
+        { id: 'backend', title: 'Backend Development', desc: 'Node.js, databases, and API design.', icon: <Terminal className="text-primary" /> },
+        { id: 'fullstack', title: 'Full-Stack', desc: 'Complete web development from front to back.', icon: <Layout className="text-primary" /> },
+      ],
+      key: 'path' as const
+    },
+    {
+      title: "What's your goal?",
+      subtitle: 'Help us understand what you want to achieve.',
+      options: [
+        { id: 'career', title: 'Career Switch', desc: 'Transition into a tech career.', icon: <Target className="text-tertiary" /> },
+        { id: 'upskill', title: 'Upskill', desc: 'Improve existing programming skills.', icon: <Zap className="text-tertiary" /> },
+        { id: 'hobby', title: 'Personal Projects', desc: 'Build projects for fun and learning.', icon: <Code2 className="text-tertiary" /> },
+      ],
+      key: 'goal' as const
+    },
+    {
+      title: 'How much time can you commit?',
+      subtitle: "We'll adjust your learning pace accordingly.",
+      options: [
+        { id: 'light', title: '30 min/day', desc: 'Light pace, perfect for busy schedules.', icon: <Clock className="text-secondary" /> },
+        { id: 'moderate', title: '1 hour/day', desc: 'Balanced learning with steady progress.', icon: <Clock className="text-secondary" /> },
+        { id: 'intensive', title: '2+ hours/day', desc: 'Intensive learning for fast-track mastery.', icon: <Clock className="text-secondary" /> },
+      ],
+      key: 'time' as const
+    }
   ];
+
+  const currentStep = steps[step - 1];
+  const currentSelection = selections[currentStep.key];
+
+  const handleNext = () => {
+    if (step < 4) {
+      setStep(step + 1);
+    } else {
+      onComplete();
+    }
+  };
+
+  const handleSelect = (id: string) => {
+    setSelections({ ...selections, [currentStep.key]: id });
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-8">
@@ -32,64 +101,67 @@ export default function OnboardingScreen({ onComplete }: Props) {
           <div className="w-full h-1 bg-surface-container rounded-full overflow-hidden">
             <motion.div 
               className="h-full bg-gradient-to-r from-secondary to-primary"
-              initial={{ width: '25%' }}
               animate={{ width: `${(step / 4) * 100}%` }}
+              transition={{ duration: 0.3 }}
             />
           </div>
         </div>
 
         <div className="px-12 pb-12">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-          >
-            <div className="mb-10">
-              <h2 className="text-4xl font-bold mb-2">Choose your mastery</h2>
-              <p className="text-on-surface-variant">We'll tailor your exercises to your starting point.</p>
-            </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="mb-10">
+                <h2 className="text-4xl font-bold mb-2">{currentStep.title}</h2>
+                <p className="text-on-surface-variant">{currentStep.subtitle}</p>
+              </div>
 
-            <div className="space-y-4">
-              {levels.map((level) => (
-                <button
-                  key={level.id}
-                  onClick={() => setSelection(level.id)}
-                  className={`w-full flex items-center p-6 rounded-2xl bg-surface-container border transition-all duration-300 group text-left ${
-                    selection === level.id 
-                    ? 'border-primary bg-primary/5 active-glow' 
-                    : 'border-outline-variant/10 hover:border-primary/50'
-                  }`}
-                >
-                  <div className="w-14 h-14 rounded-xl bg-surface-container-highest flex items-center justify-center mr-6 group-hover:scale-110 transition-transform">
-                    {level.icon}
-                  </div>
-                  <div className="flex-1">
-                    <div className={`text-xl font-bold mb-1 ${selection === level.id ? 'text-primary' : ''}`}>
-                      {level.title}
+              <div className="space-y-4">
+                {currentStep.options.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => handleSelect(option.id)}
+                    className={`w-full flex items-center p-6 rounded-2xl bg-surface-container border transition-all duration-300 group text-left ${
+                      currentSelection === option.id 
+                      ? 'border-primary bg-primary/5 active-glow' 
+                      : 'border-outline-variant/10 hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="w-14 h-14 rounded-xl bg-surface-container-highest flex items-center justify-center mr-6 group-hover:scale-110 transition-transform">
+                      {option.icon}
                     </div>
-                    <div className="text-sm text-on-surface-variant leading-snug">{level.desc}</div>
-                  </div>
-                  {selection === level.id && (
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                      <CheckCircle className="text-primary" />
-                    </motion.div>
-                  )}
-                </button>
-              ))}
-            </div>
+                    <div className="flex-1">
+                      <div className={`text-xl font-bold mb-1 ${currentSelection === option.id ? 'text-primary' : ''}`}>
+                        {option.title}
+                      </div>
+                      <div className="text-sm text-on-surface-variant leading-snug">{option.desc}</div>
+                    </div>
+                    {currentSelection === option.id && (
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                        <CheckCircle className="text-primary" />
+                      </motion.div>
+                    )}
+                  </button>
+                ))}
+              </div>
 
-            <div className="mt-12 flex justify-end">
-              <button 
-                onClick={onComplete}
-                disabled={!selection}
-                className="group px-10 py-5 bg-primary text-surface font-bold rounded-2xl hover:brightness-110 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-30"
-              >
-                Continue
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
-          </motion.div>
+              <div className="mt-12 flex justify-end">
+                <button 
+                  onClick={handleNext}
+                  disabled={!currentSelection}
+                  className="group px-10 py-5 bg-primary text-surface font-bold rounded-2xl hover:brightness-110 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  {step === 4 ? 'Get Started' : 'Continue'}
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         <div className="bg-surface-container-low/50 px-12 py-6 flex justify-center items-center gap-8 border-t border-outline-variant/10">
@@ -105,16 +177,5 @@ export default function OnboardingScreen({ onComplete }: Props) {
         </div>
       </motion.div>
     </div>
-  );
-}
-
-// Custom icons to match prompt
-function Cpu(props: any) {
-  return (
-    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="4" width="16" height="16" rx="2" />
-      <rect x="9" y="9" width="6" height="6" />
-      <path d="M15 2v2M9 2v2M15 20v2M9 20v2M20 15h2M20 9h2M2 15h2M2 9h2" />
-    </svg>
   );
 }

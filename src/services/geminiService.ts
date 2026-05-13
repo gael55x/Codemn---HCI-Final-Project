@@ -29,6 +29,6 @@ export async function askMentor(prompt: string, context: string = "") {
     return result.response.text();
   } catch (error) {
     console.error("AI Mentor error:", error);
-    return "I'm having a bit of trouble connecting right now, Miguel. Hang tight while I recalibrate my system.";
+    return "I'm having a bit of trouble connecting right now, Gaille. Hang tight while I recalibrate my system.";
   }
 }

@@ -15,7 +15,12 @@ import {
   Medal
 } from 'lucide-react';
 
-export default function DashboardScreen() {
+interface Props {
+  onResumeLesson?: () => void;
+  onViewSyllabus?: () => void;
+}
+
+export default function DashboardScreen({ onResumeLesson, onViewSyllabus }: Props) {
   const activityData = Array.from({ length: 84 }, (_, i) => Math.floor(Math.random() * 5));
 
   return (
@@ -25,7 +30,7 @@ export default function DashboardScreen() {
       className="space-y-10"
     >
       <section>
-        <h2 className="text-5xl font-bold tracking-tight mb-2">Mabuhay, Miguel! Ready to code?</h2>
+        <h2 className="text-5xl font-bold tracking-tight mb-2">Mabuhay, Gaille Ivan! Ready to code?</h2>
         <p className="text-lg text-on-surface-variant">You're on a roll. JavaScript arrays are waiting for you.</p>
       </section>
 
@@ -36,21 +41,31 @@ export default function DashboardScreen() {
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-10">
               <span className="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">Current Module</span>
-              <span className="font-mono text-xs text-on-surface-variant uppercase">Progress: 65%</span>
+              <span className="font-mono text-xs text-on-surface-variant uppercase">Progress: 50%</span>
             </div>
             <h3 className="text-4xl font-bold mb-3">JavaScript Fundamentals</h3>
             <p className="text-lg text-on-surface-variant mb-8">Focusing on: Arrays and Loops</p>
             <div className="w-full bg-surface-container h-1 rounded-full mb-10 overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
-                animate={{ width: '65%' }}
+                animate={{ width: '50%' }}
                 className="h-full bg-gradient-to-r from-secondary to-primary"
               />
             </div>
           </div>
           <div className="flex gap-4 relative z-10">
-            <button className="px-10 py-4 bg-primary text-surface font-bold rounded-2xl hover:brightness-110 hover:shadow-lg transition-all active:scale-95">Resume Lesson</button>
-            <button className="px-10 py-4 border border-outline-variant text-on-surface font-bold rounded-2xl hover:bg-surface-container-highest transition-all">View Syllabus</button>
+            <button 
+              onClick={onResumeLesson}
+              className="px-10 py-4 bg-primary text-surface font-bold rounded-2xl hover:brightness-110 hover:shadow-lg transition-all active:scale-95"
+            >
+              Resume Lesson
+            </button>
+            <button 
+              onClick={onViewSyllabus}
+              className="px-10 py-4 border border-outline-variant text-on-surface font-bold rounded-2xl hover:bg-surface-container-highest transition-all"
+            >
+              View Syllabus
+            </button>
           </div>
         </div>
 
@@ -187,7 +202,7 @@ export default function DashboardScreen() {
               </div>
             </div>
             <p className="text-2xl leading-relaxed mb-10">
-              "You're making great progress with Loops, Miguel! Ready to try a <span className="text-tertiary font-bold underline decoration-tertiary/30">nested loop challenge</span>? It will solidify your multi-dimensional mapping skills."
+              "You're making great progress with Loops, Gaille! Ready to try a <span className="text-tertiary font-bold underline decoration-tertiary/30">nested loop challenge</span>? It will solidify your multi-dimensional mapping skills."
             </p>
             <button className="flex items-center gap-3 px-8 py-4 bg-tertiary text-surface font-bold rounded-2xl hover:brightness-110 active:scale-95 transition-all">
               Launch Insight Task
