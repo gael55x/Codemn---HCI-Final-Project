@@ -31,7 +31,7 @@ export default function ProgressScreen() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 px-4 py-2 glass-card rounded-xl">
             <Flame size={20} className="text-error" fill="currentColor" />
-            <span className="text-sm font-bold">14 Day Streak</span>
+            <span className="text-sm font-bold">5 Day Streak</span>
           </div>
         </div>
       </div>
