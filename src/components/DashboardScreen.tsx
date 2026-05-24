@@ -15,13 +15,49 @@ import {
   Medal
 } from 'lucide-react';
 
+import { UserPreferences } from '../types';
+
 interface Props {
+  userPreferences: UserPreferences;
   onResumeLesson?: () => void;
   onViewSyllabus?: () => void;
 }
 
-export default function DashboardScreen({ onResumeLesson, onViewSyllabus }: Props) {
-  const activityData = Array.from({ length: 84 }, (_, i) => Math.floor(Math.random() * 5));
+export default function DashboardScreen({ userPreferences, onResumeLesson, onViewSyllabus }: Props) {
+  // Stabilized weekly activity heatmap data (deterministic mock data)
+  const activityData = React.useMemo(() => {
+    const basePattern = [1, 0, 2, 0, 3, 0, 0, 4, 1, 0, 2, 1, 0, 0, 3, 0, 4, 2, 0, 1, 0, 2, 0, 3, 1, 0, 4, 0, 0, 2, 1, 0, 3, 0, 2];
+    return Array.from({ length: 84 }, (_, i) => basePattern[i % basePattern.length]);
+  }, []);
+
+  // Determine current module based on user path choice
+  const getModuleInfo = () => {
+    switch (userPreferences.path) {
+      case 'backend':
+        return {
+          title: 'System Design & Node.js',
+          focus: 'Focusing on: Express and REST API Architecture',
+          progress: '30%',
+          width: '30%'
+        };
+      case 'frontend':
+        return {
+          title: 'Modern React Patterns',
+          focus: 'Focusing on: Hooks and State Management',
+          progress: '20%',
+          width: '20%'
+        };
+      default:
+        return {
+          title: 'JavaScript Fundamentals',
+          focus: 'Focusing on: Arrays and Loops',
+          progress: '50%',
+          width: '50%'
+        };
+    }
+  };
+
+  const moduleInfo = getModuleInfo();
 
   return (
     <motion.div 
@@ -30,8 +66,12 @@ export default function DashboardScreen({ onResumeLesson, onViewSyllabus }: Prop
       className="space-y-10"
     >
       <section>
-        <h2 className="text-5xl font-bold tracking-tight mb-2">Mabuhay, Gaille Ivan! Ready to code?</h2>
-        <p className="text-lg text-on-surface-variant">You're on a roll. JavaScript arrays are waiting for you.</p>
+        <h2 className="text-5xl font-bold tracking-tight mb-2">
+          {userPreferences.level ? `Mabuhay, Gaille Ivan! Ready to code as a ${userPreferences.level}?` : 'Mabuhay, Gaille Ivan! Ready to code?'}
+        </h2>
+        <p className="text-lg text-on-surface-variant">
+          {userPreferences.goal === 'career' ? 'You are on your path to a career switch.' : 'Keep up the excellent learning pace.'} {moduleInfo.title} is waiting for you.
+        </p>
       </section>
 
       <div className="grid grid-cols-12 gap-6">
@@ -41,14 +81,14 @@ export default function DashboardScreen({ onResumeLesson, onViewSyllabus }: Prop
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-10">
               <span className="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">Current Module</span>
-              <span className="font-mono text-xs text-on-surface-variant uppercase">Progress: 50%</span>
+              <span className="font-mono text-xs text-on-surface-variant uppercase">Progress: {moduleInfo.progress}</span>
             </div>
-            <h3 className="text-4xl font-bold mb-3">JavaScript Fundamentals</h3>
-            <p className="text-lg text-on-surface-variant mb-8">Focusing on: Arrays and Loops</p>
+            <h3 className="text-4xl font-bold mb-3">{moduleInfo.title}</h3>
+            <p className="text-lg text-on-surface-variant mb-8">{moduleInfo.focus}</p>
             <div className="w-full bg-surface-container h-1 rounded-full mb-10 overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
-                animate={{ width: '50%' }}
+                animate={{ width: moduleInfo.width }}
                 className="h-full bg-gradient-to-r from-secondary to-primary"
               />
             </div>

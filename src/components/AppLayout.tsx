@@ -35,6 +35,11 @@ interface LayoutProps {
   setScreen: (screen: ScreenType) => void;
   isAIExpanded: boolean;
   setAIExpanded: (expanded: boolean) => void;
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  isTyping: boolean;
+  setIsTyping: React.Dispatch<React.SetStateAction<boolean>>;
+  onSendMessage: (text: string) => void;
 }
 
 interface Message {
@@ -42,12 +47,19 @@ interface Message {
   text: string;
 }
 
-export default function AppLayout({ children, activeScreen, setScreen, isAIExpanded, setAIExpanded }: LayoutProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'ai', text: 'Welcome back Gaille! I see you were exploring array iteration last night. Ready to tackle .reduce() today?' }
-  ]);
+export default function AppLayout({ 
+  children, 
+  activeScreen, 
+  setScreen, 
+  isAIExpanded, 
+  setAIExpanded,
+  messages,
+  setMessages,
+  isTyping,
+  setIsTyping,
+  onSendMessage
+}: LayoutProps) {
   const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
   const navItems = [
@@ -57,22 +69,10 @@ export default function AppLayout({ children, activeScreen, setScreen, isAIExpan
     { id: 'progress', icon: TrendingUp, label: 'Progress' },
   ];
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = () => {
     if (!inputValue.trim()) return;
-
-    const userMsg = inputValue.trim();
-    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    onSendMessage(inputValue.trim());
     setInputValue('');
-    setIsTyping(true);
-
-    try {
-      const response = await askMentor(userMsg, `User is currently on ${activeScreen} screen.`);
-      setMessages(prev => [...prev, { role: 'ai', text: response }]);
-    } catch (error) {
-      setMessages(prev => [...prev, { role: 'ai', text: 'Sorry, I encountered an error. Please try again.' }]);
-    } finally {
-      setIsTyping(false);
-    }
   };
 
   if (activeScreen === 'landing' || activeScreen === 'onboarding') {

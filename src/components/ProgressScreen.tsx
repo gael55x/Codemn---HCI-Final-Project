@@ -11,10 +11,10 @@ import {
 } from 'lucide-react';
 
 export default function ProgressScreen() {
-  const weeklyActivity = Array.from({ length: 35 }, (_, i) => {
-    const rand = Math.random();
-    return rand > 0.7 ? 3 : rand > 0.4 ? 2 : rand > 0.2 ? 1 : 0;
-  });
+  const weeklyActivity = React.useMemo(() => {
+    const basePattern = [1, 2, 0, 3, 0, 1, 2, 0, 0, 3, 1, 2, 0, 3, 2, 1, 0, 0, 3, 1, 2, 0, 3, 0, 1, 2, 0, 0, 3, 1, 2, 0, 3, 1, 0];
+    return Array.from({ length: 35 }, (_, i) => basePattern[i % basePattern.length]);
+  }, []);
 
   return (
     <motion.div 

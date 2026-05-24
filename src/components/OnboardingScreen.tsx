@@ -14,8 +14,10 @@ import {
   Zap
 } from 'lucide-react';
 
+import { UserPreferences } from '../types';
+
 interface Props {
-  onComplete: () => void;
+  onComplete: (selections: UserPreferences) => void;
 }
 
 export default function OnboardingScreen({ onComplete }: Props) {
@@ -77,7 +79,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
     if (step < 4) {
       setStep(step + 1);
     } else {
-      onComplete();
+      onComplete(selections);
     }
   };
 

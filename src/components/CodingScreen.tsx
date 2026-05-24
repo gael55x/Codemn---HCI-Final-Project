@@ -17,10 +17,10 @@ import {
 
 interface Props {
   onBack: () => void;
+  onAskAI: (text: string) => void;
 }
 
-export default function CodingScreen({ onBack }: Props) {
-  const [code, setCode] = useState(`// Instruction: Sort the array of products
+const STARTER_CODE = `// Instruction: Sort the array of products
 // based on their price (ascending).
 
 const products = [
@@ -31,31 +31,113 @@ const products = [
 
 // Your logic here:
 const sorted = products.slice().sort((a, b) => {
-  return a.price - b.price;
+  // TODO: Return sorting evaluation logic (e.g. price ascending)
+  
 });
 
-console.log(sorted);`);
+console.log(sorted);`;
 
+export default function CodingScreen({ onBack, onAskAI }: Props) {
+  const [code, setCode] = useState(STARTER_CODE);
   const [output, setOutput] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const runCode = () => {
     setIsRunning(true);
     setOutput([]);
     
-    // Simulate runtime
+    // Simulate runtime evaluation
     setTimeout(() => {
-      setOutput([
-        '> [Log] Running sequence...',
-        '> Array(3) [',
-        '  { name: "Mouse", price: 25 },',
-        '  { name: "Keyboard", price: 75 },',
-        '  { name: "Laptop", price: 1200 }',
-        ']',
-        '> Process finished with exit code 0'
-      ]);
+      const hasCorrectSorting = code.includes('a.price - b.price') || code.includes('a.price-b.price');
+      const hasSortedDeclaration = code.includes('const sorted') || code.includes('let sorted');
+
+      if (!hasSortedDeclaration) {
+        setOutput([
+          '> [Error] ReferenceError: sorted is not defined',
+          '  at sorting.js:12',
+          '> Process finished with exit code 1'
+        ]);
+      } else if (hasCorrectSorting) {
+        setOutput([
+          '> [Log] Running sorting test...',
+          '> Array(3) [',
+          '  { name: "Mouse", price: 25 },',
+          '  { name: "Keyboard", price: 75 },',
+          '  { name: "Laptop", price: 1200 }',
+          ']',
+          '> [Success] Test passed: array sorted ascending by price!',
+          '> Process finished with exit code 0'
+        ]);
+      } else {
+        setOutput([
+          '> [Log] Running sorting test...',
+          '> Array(3) [',
+          '  { name: "Laptop", price: 1200 },',
+          '  { name: "Mouse", price: 25 },',
+          '  { name: "Keyboard", price: 75 }',
+          ']',
+          '> [Error] Test failed: array is not sorted by price ascending.',
+          '  Expected Mouse ($25) first, Laptop ($1200) last.',
+          '> Process finished with exit code 1'
+        ]);
+      }
       setIsRunning(false);
     }, 800);
+  };
+
+  const handleReset = () => {
+    setCode(STARTER_CODE);
+    setOutput([]);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const textarea = e.currentTarget;
+    const { selectionStart, selectionEnd, value } = textarea;
+
+    // Tab key support
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const newCode = value.substring(0, selectionStart) + '  ' + value.substring(selectionEnd);
+      setCode(newCode);
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = selectionStart + 2;
+      }, 0);
+    }
+
+    // Auto-closing brackets / quotes
+    const pairs: Record<string, string> = {
+      '{': '}',
+      '[': ']',
+      '(': ')',
+      '"': '"',
+      "'": "'",
+      '`': '`'
+    };
+
+    if (pairs[e.key] !== undefined) {
+      e.preventDefault();
+      const closingChar = pairs[e.key];
+      const newCode = value.substring(0, selectionStart) + e.key + closingChar + value.substring(selectionEnd);
+      setCode(newCode);
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = selectionStart + 1;
+      }, 0);
+    }
+  };
+
+  const handleAskAIDebug = () => {
+    onAskAI(`Here is my current code for the sorting task:
+\`\`\`javascript
+${code}
+\`\`\`
+Can you explain what is wrong or give me a hint on how to sort the products ascending by price? Keep it brief and friendly.`);
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -67,7 +149,7 @@ console.log(sorted);`);
       {/* Task Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <button onClick={onBack} className="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant transition-colors">
+          <button onClick={onBack} className="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant transition-colors cursor-pointer">
             <ChevronRight size={24} className="rotate-180" />
           </button>
           <div>
@@ -81,17 +163,29 @@ console.log(sorted);`);
         </div>
 
         <div className="flex gap-4">
-          <button className="flex items-center gap-2 px-6 py-2.5 glass-card border-outline-variant/10 text-xs font-bold hover:bg-surface-container-high transition-all rounded-xl">
+          <button 
+            onClick={handleReset}
+            className="flex items-center gap-2 px-6 py-2.5 glass-card border-outline-variant/10 text-xs font-bold hover:bg-surface-container-high transition-all rounded-xl cursor-pointer"
+          >
              <RotateCw size={16} /> Reset
           </button>
           <button 
             onClick={runCode}
             disabled={isRunning}
-            className={`flex items-center gap-2 px-8 py-2.5 bg-secondary text-surface font-bold rounded-xl shadow-lg transition-all active:scale-95 ${isRunning ? 'opacity-50' : 'hover:brightness-110'}`}
+            className={`flex items-center gap-2 px-8 py-2.5 bg-secondary text-surface font-bold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer ${isRunning ? 'opacity-50' : 'hover:brightness-110'}`}
           >
              <Play size={16} fill="currentColor" stroke="none" /> Run Code
           </button>
-          <button className="px-8 py-2.5 bg-primary text-surface font-bold rounded-xl shadow-lg hover:brightness-110 active:scale-95 transition-all">
+          <button 
+            onClick={() => {
+              setOutput([
+                '> Submitting solution for review...',
+                '> Array sorted successfully!',
+                '> Task completed! 100 XP awarded.'
+              ]);
+            }}
+            className="px-8 py-2.5 bg-primary text-surface font-bold rounded-xl shadow-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+          >
              Submit Task
           </button>
         </div>
@@ -105,11 +199,19 @@ console.log(sorted);`);
                <button className="px-4 py-1.5 bg-surface-container-highest rounded-lg text-[11px] font-bold text-primary flex items-center gap-2">
                  <Code2 size={14} /> sorting.js
                </button>
-               <button className="px-4 py-1.5 hover:bg-surface-container rounded-lg text-[11px] font-bold text-on-surface-variant transition-colors">
+               <button className="px-4 py-1.5 hover:bg-surface-container rounded-lg text-[11px] font-bold text-on-surface-variant transition-colors cursor-pointer">
                  utils.js
                </button>
             </div>
             <div className="flex items-center gap-3">
+              <button 
+                onClick={handleCopyCode}
+                className="p-1.5 hover:bg-surface-container rounded-lg text-on-surface-variant transition-colors mr-2 cursor-pointer flex items-center gap-1"
+                title="Copy code"
+              >
+                {copied ? <span className="text-[10px] text-secondary font-bold font-mono">Copied!</span> : null}
+                <Copy size={14} />
+              </button>
               <span className="text-[10px] font-mono text-on-surface-variant italic">Ready</span>
               <div className="w-1.5 h-1.5 rounded-full bg-secondary" />
             </div>
@@ -118,9 +220,10 @@ console.log(sorted);`);
           <div className="flex-1 p-8 font-mono text-[15px] leading-relaxed overflow-y-auto bg-[#020b14] custom-scrollbar">
             <textarea
               spellCheck={false}
-              className="w-full h-full bg-transparent border-none outline-none resize-none custom-scrollbar p-0 text-on-surface-variant selection:bg-primary/20"
+              className="w-full h-full bg-transparent border-none outline-none resize-none custom-scrollbar p-0 text-on-surface-variant selection:bg-primary/20 focus:ring-0"
               value={code}
               onChange={(e) => setCode(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </div>
         </div>
@@ -138,7 +241,7 @@ console.log(sorted);`);
                   Compiling...
                 </div>
               ) : output.length > 0 ? (
-                output.map((line, i) => <div key={i} className={line.includes('Error') ? 'text-error' : ''}>{line}</div>)
+                output.map((line, i) => <div key={i} className={line.includes('Error') ? 'text-error' : line.includes('Success') ? 'text-secondary font-bold' : ''}>{line}</div>)
               ) : (
                 <div className="opacity-30 italic">No output yet. Run your script to see results.</div>
               )}
@@ -156,7 +259,10 @@ console.log(sorted);`);
              <p className="text-xs text-on-surface-variant leading-relaxed mb-6">
                 "Stuck? Try checking the <span className="text-tertiary font-bold">.sort()</span> syntax. Remember that it modifies the original array unless you slice it!"
              </p>
-             <button className="w-full text-center text-[10px] font-bold text-on-surface-variant uppercase tracking-widest hover:text-on-surface transition-colors">
+             <button 
+               onClick={handleAskAIDebug}
+               className="w-full text-center text-[10px] font-bold text-on-surface-variant uppercase tracking-widest hover:text-on-surface transition-colors cursor-pointer"
+             >
                Ask AI to debug logic
              </button>
           </div>

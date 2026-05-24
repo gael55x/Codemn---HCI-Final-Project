@@ -18,3 +18,11 @@ export interface Module {
   status: 'Completed' | 'In Progress' | 'New';
   estimatedTime: string;
 }
+
+export interface UserPreferences {
+  level: string | null;
+  path: string | null;
+  goal: string | null;
+  time: string | null;
+}
+
