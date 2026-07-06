@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { Check, Play, Lock, Flag, ArrowRight, AlertCircle, CheckCircle2, Bot } from 'lucide-react';
+import { Check, Star, Lock, Trophy, ArrowRight, AlertCircle, CheckCircle2, Bot } from 'lucide-react';
 
 import { UserPreferences } from '../types';
 import {
@@ -11,6 +11,7 @@ import {
   TRACK_ORDER,
   TrackId,
   buildRoadmap,
+  RoadmapNode,
 } from '../data/demo-data';
 
 interface Props {
@@ -22,6 +23,176 @@ interface Props {
   onOpenModule: (moduleId: string) => void;
   onViewResults?: () => void;
 }
+
+/* --------------------------- Winding roadmap path -------------------------- */
+
+const R = 32; // node radius
+const V_GAP = 112; // vertical spacing between node centers
+const TOP_PAD = 68;
+const BOT_PAD = 76;
+const WAVE = [0, 0.7, 1, 0.7, 0, -0.7, -1, -0.7]; // normalized serpentine
+
+function smoothPath(points: { x: number; y: number }[]): string {
+  if (points.length === 0) return '';
+  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+  let d = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i - 1] ?? points[i];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2] ?? p2;
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  }
+  return d;
+}
+
+function Roadmap({ nodes, onOpenModule }: { nodes: RoadmapNode[]; onOpenModule: (id: string) => void }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(400);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const update = () => setWidth(el.clientWidth);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const amplitude = Math.max(40, Math.min(width * 0.33, 140));
+  const center = width / 2;
+  const points = nodes.map((_, i) => ({
+    x: center + amplitude * WAVE[i % WAVE.length],
+    y: TOP_PAD + i * V_GAP,
+  }));
+  const totalHeight = TOP_PAD + (nodes.length - 1) * V_GAP + BOT_PAD;
+
+  const currentIndex = nodes.findIndex((n) => n.status === 'current');
+  const coloredCount = currentIndex === -1 ? nodes.length : currentIndex + 1;
+
+  const trackD = smoothPath(points);
+  const doneD = smoothPath(points.slice(0, Math.max(coloredCount, 1)));
+
+  const shadowFor: Record<string, string> = {
+    completed: 'var(--color-secondary-container)',
+    current: 'var(--color-primary-container)',
+    upcoming: 'var(--color-outline-variant)',
+  };
+
+  return (
+    <div ref={wrapRef} className="relative w-full max-w-[440px] mx-auto" style={{ height: totalHeight }}>
+      {/* Path */}
+      <svg width={width} height={totalHeight} className="absolute inset-0 pointer-events-none" aria-hidden>
+        <path d={trackD} fill="none" stroke="var(--color-surface-container-highest)" strokeWidth={12} strokeLinecap="round" strokeLinejoin="round" />
+        {coloredCount > 1 && (
+          <path d={doneD} fill="none" stroke="var(--color-secondary)" strokeWidth={12} strokeLinecap="round" strokeLinejoin="round" opacity={0.85} />
+        )}
+      </svg>
+
+      {/* Nodes */}
+      {nodes.map((node, i) => {
+        const p = points[i];
+        const clickable = node.status !== 'upcoming';
+        const isCheckpoint = node.kind === 'checkpoint';
+        const showFocus = node.isFocus && node.status !== 'completed';
+
+        const bg =
+          node.status === 'completed'
+            ? 'bg-secondary text-surface'
+            : node.status === 'current'
+            ? 'bg-primary text-surface'
+            : isCheckpoint
+            ? 'bg-surface-container-highest text-tertiary'
+            : 'bg-surface-container-highest text-on-surface-variant';
+
+        const Icon =
+          node.status === 'completed'
+            ? isCheckpoint
+              ? Trophy
+              : Check
+            : node.status === 'current'
+            ? isCheckpoint
+              ? Trophy
+              : Star
+            : isCheckpoint
+            ? Trophy
+            : Lock;
+
+        const labelColor =
+          node.status === 'current'
+            ? 'text-primary'
+            : showFocus
+            ? 'text-error'
+            : node.status === 'upcoming'
+            ? 'text-on-surface-variant'
+            : 'text-on-surface';
+
+        return (
+          <div key={node.id}>
+            {/* Current-node bubble */}
+            {node.status === 'current' && (
+              <motion.div
+                initial={{ y: 0 }}
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute z-20 pointer-events-none"
+                style={{ left: p.x, top: p.y - R - 42, transform: 'translateX(-50%)' }}
+              >
+                <div className="relative px-3 py-1 rounded-lg bg-primary text-surface text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap shadow-lg">
+                  {currentIndex === 0 ? 'Start' : 'Continue'}
+                  <div className="absolute left-1/2 -bottom-1 w-2 h-2 bg-primary rotate-45 -translate-x-1/2" />
+                </div>
+              </motion.div>
+            )}
+
+            {/* Node */}
+            {React.createElement(
+              clickable ? 'button' : 'div',
+              {
+                ...(clickable ? { onClick: () => onOpenModule(node.moduleId) } : {}),
+                className: `absolute z-10 rounded-full flex items-center justify-center transition-transform ${bg} ${
+                  clickable ? 'cursor-pointer hover:-translate-y-0.5 active:translate-y-0' : 'cursor-default'
+                } ${showFocus ? 'ring-4 ring-error/40' : ''}`,
+                style: {
+                  left: p.x,
+                  top: p.y,
+                  width: R * 2,
+                  height: R * 2,
+                  transform: 'translate(-50%, -50%)',
+                  boxShadow: `0 6px 0 0 ${shadowFor[node.status] ?? 'var(--color-outline-variant)'}`,
+                },
+              },
+              <>
+                {node.status === 'current' && (
+                  <span className="absolute inset-0 rounded-full ring-4 ring-primary/40 animate-ping opacity-40" />
+                )}
+                <Icon size={26} strokeWidth={node.status === 'completed' ? 3 : 2.4} fill={node.status === 'current' && !isCheckpoint ? 'currentColor' : 'none'} />
+                {showFocus && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-error text-surface text-[10px] font-bold flex items-center justify-center">!</span>
+                )}
+              </>
+            )}
+
+            {/* Label */}
+            <div
+              className={`absolute z-10 text-center text-[11px] font-bold leading-tight pointer-events-none ${labelColor}`}
+              style={{ left: p.x, top: p.y + R + 8, width: 128, transform: 'translateX(-50%)' }}
+            >
+              {node.title}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* --------------------------------- Screen ---------------------------------- */
 
 export default function DashboardScreen({
   diagnosticResult = sampleDiagnosticResult,
@@ -65,89 +236,21 @@ export default function DashboardScreen({
         </div>
       </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Roadmap */}
-        <div className="lg:col-span-8 glass-card rounded-3xl p-6 md:p-10">
-          <div className="flex items-center justify-between mb-8">
+        <div className="lg:col-span-8 glass-card rounded-3xl p-4 md:p-8">
+          <div className="flex items-center justify-between mb-4 px-2">
             <div>
               <h3 className="text-2xl font-bold">Your roadmap</h3>
               <p className="text-sm text-on-surface-variant">{track.description}</p>
             </div>
             <span className="text-xs font-mono text-on-surface-variant">{done}/{nodes.length} done</span>
           </div>
-
-          <div>
-            {nodes.map((node, i) => {
-              const isLast = i === nodes.length - 1;
-              const clickable = node.status !== 'upcoming';
-              const RowTag = clickable ? 'button' : 'div';
-              return (
-                <RowTag
-                  key={node.id}
-                  {...(clickable ? { onClick: () => onOpenModule(node.moduleId) } : {})}
-                  className={`w-full flex gap-4 md:gap-5 text-left ${clickable ? 'group cursor-pointer' : 'cursor-default'}`}
-                >
-                  {/* Node + connector */}
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all ${
-                        node.status === 'completed'
-                          ? 'bg-secondary/15 text-secondary border border-secondary/40'
-                          : node.status === 'current'
-                          ? 'bg-primary text-surface shadow-[0_0_24px_rgba(192,193,255,0.4)] ring-4 ring-primary/20 group-hover:scale-105'
-                          : node.isFocus
-                          ? 'bg-error/10 text-error border border-error/40'
-                          : 'bg-surface-container text-on-surface-variant border border-outline-variant/20'
-                      }`}
-                    >
-                      {node.status === 'completed' ? (
-                        <Check size={22} strokeWidth={3} />
-                      ) : node.status === 'current' ? (
-                        <Play size={20} fill="currentColor" stroke="none" />
-                      ) : node.kind === 'checkpoint' ? (
-                        <Flag size={20} />
-                      ) : (
-                        <Lock size={18} />
-                      )}
-                    </div>
-                    {!isLast && (
-                      <div
-                        className={`w-0.5 flex-1 min-h-[28px] my-1 ${
-                          node.status === 'completed' ? 'bg-secondary/40' : 'bg-outline-variant/20'
-                        }`}
-                      />
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className={`flex-1 min-w-0 pb-6 ${isLast ? 'pb-0' : ''}`}>
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <h4 className={`font-bold ${node.status === 'upcoming' ? 'text-on-surface-variant' : ''}`}>{node.title}</h4>
-                      {node.kind === 'checkpoint' && (
-                        <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-tertiary/10 text-tertiary">Checkpoint</span>
-                      )}
-                      {node.isFocus && node.status !== 'completed' && (
-                        <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-error/10 text-error">Review</span>
-                      )}
-                    </div>
-                    <p className="text-xs text-on-surface-variant">
-                      {node.status === 'completed' ? 'Completed' : node.status === 'current' ? 'Up next' : 'Locked'}
-                    </p>
-                    {node.status === 'current' && (
-                      <span className="inline-flex items-center gap-2 mt-3 px-5 py-2.5 bg-primary text-surface font-bold rounded-xl text-sm group-hover:brightness-110 transition-all">
-                        {done === 0 ? 'Start' : 'Continue'}
-                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                      </span>
-                    )}
-                  </div>
-                </RowTag>
-              );
-            })}
-          </div>
+          <Roadmap nodes={nodes} onOpenModule={onOpenModule} />
         </div>
 
         {/* Right rail */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
           {/* Readiness */}
           <div className="glass-card rounded-3xl p-8 flex flex-col items-center text-center">
             <div className="relative w-28 h-28 mb-4">
