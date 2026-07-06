@@ -14,11 +14,18 @@ import LessonScreen from './components/LessonScreen';
 import LibraryScreen from './components/LibraryScreen';
 import CodingScreen from './components/CodingScreen';
 import SettingsScreen from './components/SettingsScreen';
-import SyllabusScreen from './components/SyllabusScreen';
 import ProgressScreen from './components/ProgressScreen';
 import { ScreenType, UserPreferences } from './types';
 import { askMentor } from './services/geminiService';
-import { mentorWelcome, sampleDiagnosticResult, DiagnosticResult } from './data/demo-data';
+import {
+  mentorWelcome,
+  sampleDiagnosticResult,
+  DiagnosticResult,
+  TrackId,
+  TRACKS,
+  trackIdForPath,
+  defaultTrackProgress,
+} from './data/demo-data';
 
 interface Message {
   role: 'user' | 'ai';
@@ -55,6 +62,35 @@ export default function App() {
     setScreen('results');
   };
 
+  // Learning track + roadmap progress
+  const [currentTrack, setCurrentTrack] = useState<TrackId>(() => {
+    const saved = localStorage.getItem('currentTrack');
+    if (saved === 'frontend' || saved === 'backend' || saved === 'fullstack') return saved;
+    return trackIdForPath(userPreferences.path);
+  });
+  const [trackProgress, setTrackProgress] = useState<Record<TrackId, number>>(() => {
+    const saved = localStorage.getItem('trackProgress');
+    return saved ? JSON.parse(saved) : defaultTrackProgress;
+  });
+
+  const selectTrack = (id: TrackId) => {
+    setCurrentTrack(id);
+    localStorage.setItem('currentTrack', id);
+  };
+  const openModule = (moduleId: string) => {
+    setSelectedModuleId(moduleId);
+    setScreen('lesson');
+  };
+  const completeActivity = () => {
+    setTrackProgress((prev) => {
+      const steps = TRACKS[currentTrack].steps.length;
+      const next = { ...prev, [currentTrack]: Math.min((prev[currentTrack] ?? 0) + 1, steps) };
+      localStorage.setItem('trackProgress', JSON.stringify(next));
+      return next;
+    });
+    setScreen('dashboard');
+  };
+
   const handleAskMentor = async (text: string) => {
     if (!text.trim()) return;
     setMessages(prev => [...prev, { role: 'user', text }]);
@@ -74,6 +110,9 @@ export default function App() {
   const handleCompleteOnboarding = (prefs: UserPreferences) => {
     setUserPreferences(prefs);
     localStorage.setItem('userPreferences', JSON.stringify(prefs));
+    const track = trackIdForPath(prefs.path);
+    setCurrentTrack(track);
+    localStorage.setItem('currentTrack', track);
     setScreen('diagnostic');
   };
 
@@ -97,35 +136,37 @@ export default function App() {
         return <ResultsScreen
           result={diagnosticResult}
           onStartPath={() => setScreen('dashboard')}
+          onOpenModule={openModule}
           onRetake={() => setScreen('diagnostic')}
         />;
       case 'dashboard':
         return <DashboardScreen
           userPreferences={userPreferences}
           diagnosticResult={diagnosticResult}
-          onResumeLesson={() => { setSelectedModuleId('js-fundamentals'); setScreen('lesson'); }}
-          onViewSyllabus={() => setScreen('syllabus')}
+          currentTrack={currentTrack}
+          trackProgress={trackProgress[currentTrack] ?? 0}
+          onSelectTrack={selectTrack}
+          onOpenModule={openModule}
           onViewResults={() => setScreen('results')}
         />;
       case 'library':
-        return <LibraryScreen onSelectModule={(id) => { setSelectedModuleId(id); setScreen('lesson'); }} />;
+        return <LibraryScreen onSelectModule={openModule} />;
       case 'lesson':
-        return <LessonScreen 
-          moduleId={selectedModuleId} 
+        return <LessonScreen
+          moduleId={selectedModuleId}
           onStartCoding={() => setScreen('coding')}
           onAskAI={handleAskMentor}
         />;
       case 'coding':
-        return <CodingScreen 
-          onBack={() => setScreen('lesson')} 
+        return <CodingScreen
+          onBack={() => setScreen('lesson')}
+          onComplete={completeActivity}
           onAskAI={handleAskMentor}
         />;
       case 'progress':
-        return <ProgressScreen />;
+        return <ProgressScreen diagnosticResult={diagnosticResult} currentTrack={currentTrack} trackProgress={trackProgress[currentTrack] ?? 0} />;
       case 'settings':
         return <SettingsScreen />;
-      case 'syllabus':
-        return <SyllabusScreen onBack={() => setScreen('dashboard')} />;
       default:
         return (
           <div className="flex items-center justify-center min-h-[60vh]">

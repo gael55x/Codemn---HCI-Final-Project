@@ -1,4 +1,4 @@
-export type ScreenType = 'landing' | 'onboarding' | 'diagnostic' | 'results' | 'dashboard' | 'library' | 'lesson' | 'coding' | 'progress' | 'settings' | 'syllabus';
+export type ScreenType = 'landing' | 'onboarding' | 'diagnostic' | 'results' | 'dashboard' | 'library' | 'lesson' | 'coding' | 'progress' | 'settings';
 
 export interface UserStats {
   level: number;

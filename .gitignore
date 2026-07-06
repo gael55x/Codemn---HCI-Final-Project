@@ -9,3 +9,4 @@ coverage/
 
 # Local preview tooling
 .claude/
+.vercel

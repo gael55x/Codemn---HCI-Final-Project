@@ -207,6 +207,106 @@ export const sampleDiagnosticResult: DiagnosticResult = computeDiagnostic({
   q5: 0, // wrong -> algorithms weak
 });
 
+/* ------------------------------ Learning tracks ---------------------------- */
+
+export type TrackId = 'frontend' | 'backend' | 'fullstack';
+
+export interface RoadmapStep {
+  id: string;
+  moduleId: string; // links to a lesson in LessonScreen / LibraryScreen
+  title: string;
+  skillId?: string; // cross-references the diagnostic
+  kind: 'lesson' | 'checkpoint';
+}
+
+export interface Track {
+  id: TrackId;
+  label: string;
+  description: string;
+  steps: RoadmapStep[];
+}
+
+export const TRACKS: Record<TrackId, Track> = {
+  frontend: {
+    id: 'frontend',
+    label: 'Frontend',
+    description: 'JavaScript, React, and modern UI.',
+    steps: [
+      { id: 'fe1', moduleId: 'js-fundamentals', title: 'Variables & Logic', skillId: 'logic', kind: 'lesson' },
+      { id: 'fe2', moduleId: 'js-fundamentals', title: 'Arrays & Loops', skillId: 'arrays', kind: 'lesson' },
+      { id: 'fe3', moduleId: 'js-fundamentals', title: 'Functions & Scope', skillId: 'functions', kind: 'lesson' },
+      { id: 'fe4', moduleId: 'js-fundamentals', title: 'Debugging Basics', skillId: 'debugging', kind: 'lesson' },
+      { id: 'fe5', moduleId: 'js-fundamentals', title: 'Checkpoint: Logic Review', kind: 'checkpoint' },
+      { id: 'fe6', moduleId: 'react-patterns', title: 'React Hooks', skillId: 'functions', kind: 'lesson' },
+      { id: 'fe7', moduleId: 'react-patterns', title: 'State Management', kind: 'lesson' },
+      { id: 'fe8', moduleId: 'react-patterns', title: 'Checkpoint: Build a Component', kind: 'checkpoint' },
+    ],
+  },
+  backend: {
+    id: 'backend',
+    label: 'Backend',
+    description: 'Node.js, APIs, and databases.',
+    steps: [
+      { id: 'be1', moduleId: 'js-fundamentals', title: 'Variables & Logic', skillId: 'logic', kind: 'lesson' },
+      { id: 'be2', moduleId: 'js-fundamentals', title: 'Arrays & Loops', skillId: 'arrays', kind: 'lesson' },
+      { id: 'be3', moduleId: 'js-fundamentals', title: 'Functions & Scope', skillId: 'functions', kind: 'lesson' },
+      { id: 'be4', moduleId: 'backend-architecture', title: 'Algorithmic Thinking', skillId: 'algorithms', kind: 'lesson' },
+      { id: 'be5', moduleId: 'backend-architecture', title: 'Checkpoint: Logic Review', kind: 'checkpoint' },
+      { id: 'be6', moduleId: 'backend-architecture', title: 'REST API Design', kind: 'lesson' },
+      { id: 'be7', moduleId: 'database-logic', title: 'SQL & Joins', kind: 'lesson' },
+      { id: 'be8', moduleId: 'backend-architecture', title: 'Checkpoint: Design an API', kind: 'checkpoint' },
+    ],
+  },
+  fullstack: {
+    id: 'fullstack',
+    label: 'Full-Stack',
+    description: 'End-to-end web development.',
+    steps: [
+      { id: 'fs1', moduleId: 'js-fundamentals', title: 'Variables & Logic', skillId: 'logic', kind: 'lesson' },
+      { id: 'fs2', moduleId: 'js-fundamentals', title: 'Arrays & Loops', skillId: 'arrays', kind: 'lesson' },
+      { id: 'fs3', moduleId: 'js-fundamentals', title: 'Functions & Scope', skillId: 'functions', kind: 'lesson' },
+      { id: 'fs4', moduleId: 'js-fundamentals', title: 'Debugging Basics', skillId: 'debugging', kind: 'lesson' },
+      { id: 'fs5', moduleId: 'react-patterns', title: 'React Hooks', skillId: 'functions', kind: 'lesson' },
+      { id: 'fs6', moduleId: 'backend-architecture', title: 'REST API Design', skillId: 'algorithms', kind: 'lesson' },
+      { id: 'fs7', moduleId: 'database-logic', title: 'SQL & Joins', kind: 'lesson' },
+      { id: 'fs8', moduleId: 'backend-architecture', title: 'Checkpoint: Ship a Feature', kind: 'checkpoint' },
+    ],
+  },
+};
+
+export const TRACK_ORDER: TrackId[] = ['frontend', 'backend', 'fullstack'];
+
+/** How many steps are pre-completed per track (so the roadmap shows momentum). */
+export const defaultTrackProgress: Record<TrackId, number> = {
+  frontend: 3,
+  backend: 2,
+  fullstack: 3,
+};
+
+export type StepStatus = 'completed' | 'current' | 'upcoming';
+
+export interface RoadmapNode extends RoadmapStep {
+  index: number;
+  status: StepStatus;
+  isFocus: boolean;
+}
+
+/** Maps an onboarding path choice to a track id. */
+export function trackIdForPath(path: string | null | undefined): TrackId {
+  if (path === 'frontend' || path === 'backend' || path === 'fullstack') return path;
+  return 'fullstack';
+}
+
+/** Builds roadmap nodes with completed/current/upcoming status + diagnostic focus flags. */
+export function buildRoadmap(track: Track, completedCount: number, weakSkillIds: string[]): RoadmapNode[] {
+  return track.steps.map((step, i) => ({
+    ...step,
+    index: i,
+    status: i < completedCount ? 'completed' : i === completedCount ? 'current' : 'upcoming',
+    isFocus: !!step.skillId && weakSkillIds.includes(step.skillId),
+  }));
+}
+
 /* ----------------------------- AI mentor (mock) ---------------------------- */
 
 interface MentorRule {

@@ -17,6 +17,7 @@ import {
 
 interface Props {
   onBack: () => void;
+  onComplete: () => void;
   onAskAI: (text: string) => void;
 }
 
@@ -37,11 +38,12 @@ const sorted = products.slice().sort((a, b) => {
 
 console.log(sorted);`;
 
-export default function CodingScreen({ onBack, onAskAI }: Props) {
+export default function CodingScreen({ onBack, onComplete, onAskAI }: Props) {
   const [code, setCode] = useState(STARTER_CODE);
   const [output, setOutput] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [completed, setCompleted] = useState(false);
 
   const runCode = () => {
     setIsRunning(true);
@@ -144,10 +146,10 @@ Can you explain what is wrong or give me a hint on how to sort the products asce
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="h-[calc(100vh-160px)] flex flex-col gap-6"
+      className="flex flex-col gap-6 lg:h-[calc(100vh-160px)]"
     >
       {/* Task Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-6">
           <button onClick={onBack} className="p-2 hover:bg-surface-container rounded-lg text-on-surface-variant transition-colors cursor-pointer">
             <ChevronRight size={24} className="rotate-180" />
@@ -162,8 +164,8 @@ Can you explain what is wrong or give me a hint on how to sort the products asce
           </div>
         </div>
 
-        <div className="flex gap-4">
-          <button 
+        <div className="flex flex-wrap gap-2 sm:gap-4">
+          <button
             onClick={handleReset}
             className="flex items-center gap-2 px-6 py-2.5 glass-card border-outline-variant/10 text-xs font-bold hover:bg-surface-container-high transition-all rounded-xl cursor-pointer"
           >
@@ -176,13 +178,14 @@ Can you explain what is wrong or give me a hint on how to sort the products asce
           >
              <Play size={16} fill="currentColor" stroke="none" /> Run Code
           </button>
-          <button 
+          <button
             onClick={() => {
               setOutput([
                 '> Submitting solution for review...',
                 '> Array sorted successfully!',
                 '> Task completed! 100 XP awarded.'
               ]);
+              setCompleted(true);
             }}
             className="px-8 py-2.5 bg-primary text-surface font-bold rounded-xl shadow-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
           >
@@ -191,9 +194,31 @@ Can you explain what is wrong or give me a hint on how to sort the products asce
         </div>
       </div>
 
-      <div className="flex-1 grid grid-cols-12 gap-6 min-h-0">
+      {completed && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-secondary/10 border border-secondary/30"
+        >
+          <div className="flex items-center gap-3">
+            <CheckCircle className="text-secondary shrink-0" size={22} />
+            <div>
+              <p className="font-bold">Activity complete — +100 XP</p>
+              <p className="text-sm text-on-surface-variant">Nice work. This step is now marked done on your roadmap.</p>
+            </div>
+          </div>
+          <button
+            onClick={onComplete}
+            className="px-6 py-3 bg-secondary text-surface font-bold rounded-xl hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 shrink-0"
+          >
+            Back to roadmap <ChevronRight size={18} />
+          </button>
+        </motion.div>
+      )}
+
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
         {/* Editor (Mockup) */}
-        <div className="col-span-8 glass-card rounded-[32px] flex flex-col min-h-0 border-outline-variant/5 overflow-hidden">
+        <div className="lg:col-span-8 glass-card rounded-[32px] flex flex-col min-h-[340px] lg:min-h-0 border-outline-variant/5 overflow-hidden">
           <div className="px-6 py-3 bg-surface-container-highest/30 border-b border-outline-variant/10 flex justify-between items-center shrink-0">
             <div className="flex gap-1">
                <button className="px-4 py-1.5 bg-surface-container-highest rounded-lg text-[11px] font-bold text-primary flex items-center gap-2">
@@ -229,7 +254,7 @@ Can you explain what is wrong or give me a hint on how to sort the products asce
         </div>
 
         {/* Sidemenu / Output */}
-        <div className="col-span-4 flex flex-col gap-6 min-h-0">
+        <div className="lg:col-span-4 flex flex-col gap-6 min-h-0">
           <div className="flex-1 glass-card rounded-[32px] flex flex-col p-8 min-h-0 border-outline-variant/5">
             <h3 className="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-6 flex items-center gap-2">
                <Terminal size={16} /> Console Output

@@ -11,7 +11,8 @@ import {
   Zap,
   User,
   Sun,
-  Moon
+  Moon,
+  Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenType } from '../types';
@@ -49,7 +50,13 @@ export default function AppLayout({
   onSendMessage
 }: LayoutProps) {
   const [inputValue, setInputValue] = useState('');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+
+  const navigate = (screen: ScreenType) => {
+    setScreen(screen);
+    setMobileNavOpen(false);
+  };
 
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -63,7 +70,6 @@ export default function AppLayout({
     progress: 'Progress',
     lesson: 'Lesson',
     coding: 'Coding activity',
-    syllabus: 'Syllabus',
     settings: 'Settings',
   };
 
@@ -84,8 +90,12 @@ export default function AppLayout({
 
   return (
     <div className="min-h-screen bg-background text-on-surface">
+      {/* Mobile nav backdrop */}
+      {mobileNavOpen && (
+        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setMobileNavOpen(false)} />
+      )}
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-[260px] bg-surface-container border-r border-outline-variant/10 flex flex-col py-8 px-4 z-50">
+      <aside className={`fixed left-0 top-0 h-full w-[260px] bg-surface-container border-r border-outline-variant/10 flex flex-col py-8 px-4 z-50 transition-transform duration-300 lg:translate-x-0 ${mobileNavOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="mb-12 px-2 flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-surface font-bold text-xl">C</div>
           <div>
@@ -98,7 +108,7 @@ export default function AppLayout({
           {navItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setScreen(item.id as ScreenType)}
+              onClick={() => navigate(item.id as ScreenType)}
               className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ${
                 activeScreen === item.id 
                 ? 'bg-primary/10 text-primary border-r-2 border-primary active-glow' 
@@ -114,7 +124,7 @@ export default function AppLayout({
         <div className="mt-auto space-y-4 pt-8 border-t border-outline-variant/10">
           <div className="space-y-1">
             <button
-              onClick={() => setScreen('settings')}
+              onClick={() => navigate('settings')}
               className={`w-full flex items-center gap-4 px-4 py-2 rounded-xl transition-all ${
                 activeScreen === 'settings'
                 ? 'bg-primary/10 text-primary'
@@ -129,14 +139,21 @@ export default function AppLayout({
       </aside>
 
       {/* Topbar */}
-      <header className="fixed top-0 right-0 left-[260px] h-16 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/10 flex justify-between items-center px-8 z-40">
-        <div className="flex-1">
+      <header className="fixed top-0 right-0 left-0 lg:left-[260px] h-16 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/10 flex justify-between items-center px-4 sm:px-8 z-40">
+        <div className="flex items-center gap-3 flex-1">
+          <button
+            onClick={() => setMobileNavOpen(true)}
+            className="lg:hidden w-9 h-9 rounded-lg hover:bg-surface-container flex items-center justify-center text-on-surface-variant"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
           <span className="text-sm font-bold tracking-tight text-on-surface">
             {screenTitles[activeScreen] ?? 'Codemm'}
           </span>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 sm:gap-6">
           <button
             onClick={toggleTheme}
             className="w-10 h-10 rounded-full bg-surface-container hover:bg-surface-container-high transition-all flex items-center justify-center"
@@ -144,8 +161,8 @@ export default function AppLayout({
           >
             {theme === 'dark' ? <Sun size={20} className="text-on-surface-variant" /> : <Moon size={20} className="text-on-surface-variant" />}
           </button>
-          
-          <div className="flex items-center gap-4 border-r border-outline-variant/20 pr-6">
+
+          <div className="hidden sm:flex items-center gap-4 border-r border-outline-variant/20 pr-6">
             <div className="flex items-center gap-1 text-error">
               <Flame size={20} fill="currentColor" stroke="none" className="animate-pulse" />
               <span className="text-sm font-bold">{demoUser.streak}</span>
@@ -157,7 +174,7 @@ export default function AppLayout({
           </div>
 
           <button className="flex items-center gap-3 group">
-            <div className="text-right">
+            <div className="text-right hidden sm:block">
               <p className="text-xs font-bold leading-tight">{demoUser.name}</p>
             </div>
             <div className="w-10 h-10 rounded-full border-2 border-primary/30 group-hover:border-primary transition-colors bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
@@ -168,7 +185,7 @@ export default function AppLayout({
       </header>
 
       {/* Main Content */}
-      <main className={`pt-24 pb-12 transition-all duration-500 pr-8 ${isAIExpanded ? 'pl-[284px] pr-[354px]' : 'pl-[284px]'}`}>
+      <main className={`pt-24 pb-12 px-4 sm:px-6 transition-all duration-500 lg:pl-[284px] ${isAIExpanded ? 'lg:pr-[354px]' : 'lg:pr-8'}`}>
         <AnimatePresence mode="wait">
           {children}
         </AnimatePresence>

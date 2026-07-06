@@ -6,6 +6,7 @@ import { DiagnosticResult } from '../data/demo-data';
 interface Props {
   result: DiagnosticResult;
   onStartPath: () => void;
+  onOpenModule?: (moduleId: string) => void;
   onRetake: () => void;
 }
 
@@ -21,7 +22,7 @@ const priorityChip: Record<string, string> = {
   Foundational: 'bg-secondary/10 text-secondary',
 };
 
-export default function ResultsScreen({ result, onStartPath, onRetake }: Props) {
+export default function ResultsScreen({ result, onStartPath, onOpenModule, onRetake }: Props) {
   const circumference = 2 * Math.PI * 52;
 
   return (
@@ -137,12 +138,13 @@ export default function ResultsScreen({ result, onStartPath, onRetake }: Props) 
           </div>
           <div className="space-y-4">
             {result.recommendedPath.map((mod, i) => (
-              <motion.div
+              <motion.button
                 key={`${mod.moduleId}-${i}`}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 * i }}
-                className="flex items-center gap-5 p-5 rounded-2xl bg-surface-container-low border border-outline-variant/10"
+                onClick={() => onOpenModule?.(mod.moduleId)}
+                className="w-full text-left flex items-center gap-5 p-5 rounded-2xl bg-surface-container-low border border-outline-variant/10 hover:border-primary/30 transition-all group"
               >
                 <div className="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center font-bold text-primary shrink-0">
                   {i + 1}
@@ -157,7 +159,8 @@ export default function ResultsScreen({ result, onStartPath, onRetake }: Props) 
                   <p className="text-sm text-on-surface-variant">{mod.reason}</p>
                 </div>
                 <span className="text-xs font-mono text-on-surface-variant shrink-0">{mod.minutes}m</span>
-              </motion.div>
+                <ArrowRight size={16} className="text-on-surface-variant group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
+              </motion.button>
             ))}
           </div>
         </div>
