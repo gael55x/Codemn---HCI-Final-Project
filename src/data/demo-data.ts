@@ -134,7 +134,7 @@ const MODULE_FOR_SKILL: Record<string, Omit<RecommendedModule, 'reason' | 'prior
   arrays: { moduleId: 'js-fundamentals', title: 'Arrays & Loops', minutes: 45 },
   functions: { moduleId: 'react-patterns', title: 'Functions, Scope & Hooks', minutes: 55 },
   debugging: { moduleId: 'js-fundamentals', title: 'Debugging Fundamentals', minutes: 35 },
-  algorithms: { moduleId: 'backend-architecture', title: 'Algorithmic Thinking', minutes: 60 },
+  algorithms: { moduleId: 'dsa-arrays', title: 'Data Structures & Algorithms', minutes: 60 },
 };
 
 function statusFor(score: number): SkillScore['status'] {
@@ -209,7 +209,7 @@ export const sampleDiagnosticResult: DiagnosticResult = computeDiagnostic({
 
 /* ------------------------------ Learning tracks ---------------------------- */
 
-export type TrackId = 'frontend' | 'backend' | 'fullstack';
+export type TrackId = 'frontend' | 'backend' | 'fullstack' | 'dsa';
 
 export interface RoadmapStep {
   id: string;
@@ -284,15 +284,35 @@ export const TRACKS: Record<TrackId, Track> = {
       { id: 'fs12', moduleId: 'backend-architecture', title: 'Deploy & Monitor', kind: 'lesson' },
     ],
   },
+  dsa: {
+    id: 'dsa',
+    label: 'DSA',
+    description: 'Data structures & algorithms.',
+    steps: [
+      { id: 'ds1', moduleId: 'dsa-arrays', title: 'Arrays & Hashing', skillId: 'arrays', kind: 'lesson' },
+      { id: 'ds2', moduleId: 'dsa-arrays', title: 'Two Pointers', skillId: 'logic', kind: 'lesson' },
+      { id: 'ds3', moduleId: 'dsa-arrays', title: 'Stacks & Queues', skillId: 'logic', kind: 'lesson' },
+      { id: 'ds4', moduleId: 'dsa-arrays', title: 'Fundamentals Check', kind: 'checkpoint' },
+      { id: 'ds5', moduleId: 'dsa-recursion', title: 'Recursion', skillId: 'algorithms', kind: 'lesson' },
+      { id: 'ds6', moduleId: 'dsa-recursion', title: 'Linked Lists', kind: 'lesson' },
+      { id: 'ds7', moduleId: 'dsa-trees', title: 'Trees & BSTs', skillId: 'algorithms', kind: 'lesson' },
+      { id: 'ds8', moduleId: 'dsa-sorting', title: 'Sorting Algorithms', skillId: 'algorithms', kind: 'lesson' },
+      { id: 'ds9', moduleId: 'dsa-sorting', title: 'Searching & Big-O', skillId: 'algorithms', kind: 'lesson' },
+      { id: 'ds10', moduleId: 'dsa-trees', title: 'Core DSA Check', kind: 'checkpoint' },
+      { id: 'ds11', moduleId: 'dsa-graphs', title: 'Graphs: BFS & DFS', skillId: 'algorithms', kind: 'lesson' },
+      { id: 'ds12', moduleId: 'dsa-graphs', title: 'Interview Prep', kind: 'checkpoint' },
+    ],
+  },
 };
 
-export const TRACK_ORDER: TrackId[] = ['frontend', 'backend', 'fullstack'];
+export const TRACK_ORDER: TrackId[] = ['frontend', 'backend', 'fullstack', 'dsa'];
 
 /** How many steps are pre-completed per track (so the roadmap shows momentum). */
 export const defaultTrackProgress: Record<TrackId, number> = {
   frontend: 4,
   backend: 3,
   fullstack: 5,
+  dsa: 2,
 };
 
 export type StepStatus = 'completed' | 'current' | 'upcoming';

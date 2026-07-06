@@ -64,6 +64,16 @@ export default function LibraryScreen({ onSelectModule }: Props) {
       language: 'SQL / Mongo',
       status: 'New',
       estimatedTime: '8h 45m'
+    },
+    {
+      id: 'dsa-arrays',
+      title: 'Data Structures & Algorithms',
+      description: 'Arrays, recursion, trees, sorting, and graphs — the core problem-solving toolkit.',
+      progress: 0,
+      difficulty: 'Intermediate',
+      language: 'DSA',
+      status: 'New',
+      estimatedTime: '10h 00m'
     }
   ];
 
@@ -87,6 +97,7 @@ export default function LibraryScreen({ onSelectModule }: Props) {
     if (title.includes('JavaScript')) return <Terminal className="text-secondary" />;
     if (title.includes('React')) return <Cpu className="text-primary" />;
     if (title.includes('System')) return <Layers className="text-tertiary" />;
+    if (title.includes('Data Structures')) return <Cpu className="text-tertiary" />;
     return <Database className="text-secondary" />;
   };
 

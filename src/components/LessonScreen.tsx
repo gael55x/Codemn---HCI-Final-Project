@@ -118,6 +118,109 @@ LEFT JOIN orders ON users.id = orders.user_id;`,
       correctAnswer: 1
     },
     tip: 'LEFT JOIN keeps all left table records, even without matches. INNER JOIN only keeps matches.'
+  },
+  'dsa-arrays': {
+    module: 'DSA 01',
+    title: 'Arrays & Hashing',
+    description: 'A hash map (object/Map) gives you O(1) average-time lookups. Reaching for one is often what turns a slow O(n²) nested-loop solution into a fast O(n) single pass — a core habit for solving array problems.',
+    codeExample: `// Two Sum: find indices that add up to target
+function twoSum(nums, target) {
+  const seen = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    const need = target - nums[i];
+    if (seen.has(need)) return [seen.get(need), i];
+    seen.set(nums[i], i);
+  }
+}
+console.log(twoSum([2, 7, 11], 9)); // [0, 1]`,
+    quiz: {
+      question: 'What is the average lookup time of a hash map?',
+      code: 'map.has(key);',
+      options: ['O(n)', 'O(log n)', 'O(1)', 'O(n²)'],
+      correctAnswer: 2
+    },
+    tip: 'Trade space for time: a hash map turns an O(n²) search into a single O(n) pass.'
+  },
+  'dsa-recursion': {
+    module: 'DSA 02',
+    title: 'Recursion',
+    description: 'Every recursion needs two things: a base case that stops it, and a recursive step that moves toward that base case. Write the base case first — if it can never be reached, you get a stack overflow.',
+    codeExample: `function factorial(n) {
+  if (n <= 1) return 1;      // base case
+  return n * factorial(n - 1); // recursive step
+}
+console.log(factorial(5)); // 120`,
+    quiz: {
+      question: 'What stops a recursive function from running forever?',
+      code: 'function f(n) { /* ... */ }',
+      options: ['A loop', 'The base case', 'The return type', 'The call stack'],
+      correctAnswer: 1
+    },
+    tip: 'Trace one small input by hand. If it never hits the base case, the recursion is wrong.'
+  },
+  'dsa-trees': {
+    module: 'DSA 03',
+    title: 'Trees & BSTs',
+    description: 'A binary search tree keeps values ordered: every left child is smaller than its parent, every right child is larger. That ordering is what makes search, insert, and delete O(log n) on a balanced tree.',
+    codeExample: `// In-order traversal visits a BST in sorted order
+function inorder(node, out = []) {
+  if (!node) return out;
+  inorder(node.left, out);
+  out.push(node.value);
+  inorder(node.right, out);
+  return out;
+}`,
+    quiz: {
+      question: 'In a binary search tree, the left child is always ___ its parent.',
+      code: 'node.left.value ? node.value',
+      options: ['greater than', 'equal to', 'less than', 'unrelated to'],
+      correctAnswer: 2
+    },
+    tip: 'In-order traversal of a BST always returns the values sorted — a handy correctness check.'
+  },
+  'dsa-sorting': {
+    module: 'DSA 04',
+    title: 'Sorting Algorithms',
+    description: 'Sorting is where Big-O becomes real. Simple sorts like bubble sort are O(n²); divide-and-conquer sorts like merge sort are O(n log n). Knowing the difference tells you when a solution will scale.',
+    codeExample: `// Merge sort: divide, sort halves, merge — O(n log n)
+function mergeSort(arr) {
+  if (arr.length <= 1) return arr;
+  const mid = Math.floor(arr.length / 2);
+  const left = mergeSort(arr.slice(0, mid));
+  const right = mergeSort(arr.slice(mid));
+  return merge(left, right);
+}`,
+    quiz: {
+      question: 'What is the average time complexity of merge sort?',
+      code: 'mergeSort(arr);',
+      options: ['O(n)', 'O(n log n)', 'O(n²)', 'O(log n)'],
+      correctAnswer: 1
+    },
+    tip: 'If a nested loop makes it O(n²), a divide-and-conquer approach often gets you to O(n log n).'
+  },
+  'dsa-graphs': {
+    module: 'DSA 05',
+    title: 'Graphs: BFS & DFS',
+    description: 'Graphs model connections — maps, networks, dependencies. BFS explores level by level using a queue (great for shortest paths); DFS goes deep first using a stack or recursion.',
+    codeExample: `// Breadth-first search uses a queue
+function bfs(graph, start) {
+  const seen = new Set([start]);
+  const queue = [start];
+  while (queue.length) {
+    const node = queue.shift();
+    for (const next of graph[node]) {
+      if (!seen.has(next)) { seen.add(next); queue.push(next); }
+    }
+  }
+  return [...seen];
+}`,
+    quiz: {
+      question: 'Breadth-first search explores a graph using a ___.',
+      code: 'queue.shift();',
+      options: ['stack', 'queue', 'tree', 'heap'],
+      correctAnswer: 1
+    },
+    tip: 'BFS = queue = shortest path in an unweighted graph. DFS = stack/recursion = go deep first.'
   }
 };
 
