@@ -16,14 +16,17 @@ import {
 } from 'lucide-react';
 
 import { UserPreferences } from '../types';
+import { demoUser, DiagnosticResult, sampleDiagnosticResult } from '../data/demo-data';
 
 interface Props {
   userPreferences: UserPreferences;
+  diagnosticResult?: DiagnosticResult;
   onResumeLesson?: () => void;
   onViewSyllabus?: () => void;
 }
 
-export default function DashboardScreen({ userPreferences, onResumeLesson, onViewSyllabus }: Props) {
+export default function DashboardScreen({ userPreferences, diagnosticResult = sampleDiagnosticResult, onResumeLesson, onViewSyllabus }: Props) {
+  const topFocus = diagnosticResult.weakAreas[0]?.label;
   // Stabilized weekly activity heatmap data (deterministic mock data)
   const activityData = React.useMemo(() => {
     const basePattern = [1, 0, 2, 0, 3, 0, 0, 4, 1, 0, 2, 1, 0, 0, 3, 0, 4, 2, 0, 1, 0, 2, 0, 3, 1, 0, 4, 0, 0, 2, 1, 0, 3, 0, 2];
@@ -67,10 +70,12 @@ export default function DashboardScreen({ userPreferences, onResumeLesson, onVie
     >
       <section>
         <h2 className="text-5xl font-bold tracking-tight mb-2">
-          {userPreferences.level ? `Mabuhay, Gaille Ivan! Ready to code as a ${userPreferences.level}?` : 'Mabuhay, Gaille Ivan! Ready to code?'}
+          Kumusta, {demoUser.firstName}! Ready to keep building?
         </h2>
         <p className="text-lg text-on-surface-variant">
-          {userPreferences.goal === 'career' ? 'You are on your path to a career switch.' : 'Keep up the excellent learning pace.'} {moduleInfo.title} is waiting for you.
+          {topFocus
+            ? <>Your diagnostic flagged <span className="text-primary font-bold">{topFocus}</span> — your path targets it next. {moduleInfo.title} is up.</>
+            : <>Keep up the pace. {moduleInfo.title} is waiting for you.</>}
         </p>
       </section>
 

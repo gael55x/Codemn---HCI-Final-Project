@@ -7,6 +7,8 @@ import React, { useState, useEffect } from 'react';
 import AppLayout from './components/AppLayout';
 import LandingScreen from './components/LandingScreen';
 import OnboardingScreen from './components/OnboardingScreen';
+import DiagnosticScreen from './components/DiagnosticScreen';
+import ResultsScreen from './components/ResultsScreen';
 import DashboardScreen from './components/DashboardScreen';
 import LessonScreen from './components/LessonScreen';
 import LibraryScreen from './components/LibraryScreen';
@@ -18,6 +20,7 @@ import ProgressScreen from './components/ProgressScreen';
 import ReviewScreen from './components/ReviewScreen';
 import { ScreenType, UserPreferences } from './types';
 import { askMentor } from './services/geminiService';
+import { mentorWelcome, sampleDiagnosticResult, DiagnosticResult } from './data/demo-data';
 
 interface Message {
   role: 'user' | 'ai';
@@ -32,7 +35,7 @@ export default function App() {
 
   // Lifted AI Mentor State
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'ai', text: 'Welcome back Gaille! I see you were exploring array iteration last night. Ready to tackle .reduce() today?' }
+    { role: 'ai', text: mentorWelcome }
   ]);
   const [isTyping, setIsTyping] = useState(false);
 
@@ -41,6 +44,18 @@ export default function App() {
     const saved = localStorage.getItem('userPreferences');
     return saved ? JSON.parse(saved) : { level: null, path: null, goal: null, time: null };
   });
+
+  // Diagnostic result (falls back to a representative sample before a run)
+  const [diagnosticResult, setDiagnosticResult] = useState<DiagnosticResult>(() => {
+    const saved = localStorage.getItem('diagnosticResult');
+    return saved ? JSON.parse(saved) : sampleDiagnosticResult;
+  });
+
+  const handleCompleteDiagnostic = (result: DiagnosticResult) => {
+    setDiagnosticResult(result);
+    localStorage.setItem('diagnosticResult', JSON.stringify(result));
+    setScreen('results');
+  };
 
   const handleAskMentor = async (text: string) => {
     if (!text.trim()) return;
@@ -61,7 +76,7 @@ export default function App() {
   const handleCompleteOnboarding = (prefs: UserPreferences) => {
     setUserPreferences(prefs);
     localStorage.setItem('userPreferences', JSON.stringify(prefs));
-    setScreen('dashboard');
+    setScreen('diagnostic');
   };
 
   useEffect(() => {
@@ -78,9 +93,18 @@ export default function App() {
         return <LandingScreen onStart={() => setScreen('onboarding')} />;
       case 'onboarding':
         return <OnboardingScreen onComplete={handleCompleteOnboarding} />;
+      case 'diagnostic':
+        return <DiagnosticScreen onComplete={handleCompleteDiagnostic} />;
+      case 'results':
+        return <ResultsScreen
+          result={diagnosticResult}
+          onStartPath={() => setScreen('dashboard')}
+          onRetake={() => setScreen('diagnostic')}
+        />;
       case 'dashboard':
-        return <DashboardScreen 
+        return <DashboardScreen
           userPreferences={userPreferences}
+          diagnosticResult={diagnosticResult}
           onResumeLesson={() => { setSelectedModuleId('js-fundamentals'); setScreen('lesson'); }}
           onViewSyllabus={() => setScreen('syllabus')}
         />;

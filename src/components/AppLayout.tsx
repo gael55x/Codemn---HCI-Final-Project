@@ -26,8 +26,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScreenType } from '../types';
-import { askMentor } from '../services/geminiService';
 import { useTheme } from '../contexts/ThemeContext';
+import { demoUser } from '../data/demo-data';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -75,7 +75,12 @@ export default function AppLayout({
     setInputValue('');
   };
 
-  if (activeScreen === 'landing' || activeScreen === 'onboarding') {
+  if (
+    activeScreen === 'landing' ||
+    activeScreen === 'onboarding' ||
+    activeScreen === 'diagnostic' ||
+    activeScreen === 'results'
+  ) {
     return <div className="min-h-screen gradient-mesh">{children}</div>;
   }
 
@@ -159,17 +164,17 @@ export default function AppLayout({
           <div className="flex items-center gap-4 border-r border-outline-variant/20 pr-6">
             <div className="flex items-center gap-1 text-error">
               <Flame size={20} fill="currentColor" stroke="none" className="animate-pulse" />
-              <span className="text-sm font-bold">5</span>
+              <span className="text-sm font-bold">{demoUser.streak}</span>
             </div>
             <div className="flex items-center gap-1 text-secondary">
               <Milestone size={20} />
-              <span className="text-sm font-bold">Lvl 12</span>
+              <span className="text-sm font-bold">Lvl {demoUser.level}</span>
             </div>
           </div>
 
           <button className="flex items-center gap-3 group">
             <div className="text-right">
-              <p className="text-xs font-bold leading-tight">Gaille Ivan Anoos</p>
+              <p className="text-xs font-bold leading-tight">{demoUser.name}</p>
             </div>
             <div className="w-10 h-10 rounded-full border-2 border-primary/30 group-hover:border-primary transition-colors bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
               <User size={20} className="text-white" />

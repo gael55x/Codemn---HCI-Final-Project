@@ -1,34 +1,14 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+/**
+ * Local, offline "AI mentor". Returns canned, context-aware guidance based on
+ * keywords in the user's message. No external API, no keys, no network — the
+ * app builds and deploys anywhere without secrets.
+ *
+ * The exported signature matches the original service so callers are unchanged.
+ */
+import { getMentorReply } from '../data/demo-data';
 
-let genAI: GoogleGenerativeAI | null = null;
-
-export function getGemini() {
-  if (!genAI) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not defined");
-    }
-    genAI = new GoogleGenerativeAI(apiKey);
-  }
-  return genAI;
-}
-
-export async function askMentor(prompt: string, context: string = "") {
-  try {
-    const ai = getGemini();
-    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
-    const fullPrompt = `You are a Filipino "AI Sensei" mentor for Codemm, an education platform. 
-    Keep responses tech-forward, encouraging, and clear. 
-    Use a professional yet accessible tone. 
-    Context: ${context}
-    
-    User message: ${prompt}`;
-
-    const result = await model.generateContent(fullPrompt);
-    return result.response.text();
-  } catch (error) {
-    console.error("AI Mentor error:", error);
-    return "I'm having a bit of trouble connecting right now, Gaille. Hang tight while I recalibrate my system.";
-  }
+export async function askMentor(prompt: string, _context: string = ''): Promise<string> {
+  // Small delay so the typing indicator feels natural.
+  await new Promise((resolve) => setTimeout(resolve, 550));
+  return getMentorReply(prompt);
 }

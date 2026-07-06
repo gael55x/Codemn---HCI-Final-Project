@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Terminal, Cpu, Zap, Activity, Clock, ArrowRight, Github } from 'lucide-react';
-import { ScreenType } from '../types';
+import { Terminal, Compass, MessageSquareCode, Gauge, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface Props {
   onStart: () => void;
@@ -10,24 +9,24 @@ interface Props {
 export default function LandingScreen({ onStart }: Props) {
   const features = [
     {
-      icon: <Terminal size={32} className="text-secondary" />,
-      title: "Interactive Sandbox",
-      description: "Write, test, and debug code in a technical environment built for focus."
+      icon: <Gauge size={32} className="text-secondary" />,
+      title: 'Skill diagnostic',
+      description: 'A 60-second check that pinpoints exactly which topics are holding you back.'
     },
     {
-      icon: <Zap size={32} className="text-tertiary" />,
-      title: "AI Mentor",
-      description: "Get context-aware hints and code reviews that actually explain the 'why'."
+      icon: <Compass size={32} className="text-primary" />,
+      title: 'Personalized path',
+      description: 'One clear sequence of lessons and coding drills, ordered around your weak spots.'
     },
     {
-      icon: <Activity size={32} className="text-primary" />,
-      title: "Personalized Path",
-      description: "A dynamic roadmap that adapts based on your real-world performance."
+      icon: <MessageSquareCode size={32} className="text-tertiary" />,
+      title: 'Mentor that explains why',
+      description: "Context-aware hints and reviews that teach the reasoning, not just the fix."
     }
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-8 pt-32 pb-24 text-center">
+    <div className="max-w-7xl mx-auto px-8 pt-28 pb-24 text-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -35,48 +34,89 @@ export default function LandingScreen({ onStart }: Props) {
       >
         <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-10 rounded-full bg-surface-container border border-outline-variant/30 backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-          <span className="text-[11px] font-bold text-secondary uppercase tracking-widest">Now open for Filipino learners</span>
+          <span className="text-[11px] font-bold text-secondary uppercase tracking-widest">Built for Filipino developers</span>
         </div>
 
-        <h1 className="text-[72px] font-bold leading-[0.9] tracking-tighter mb-8 max-w-4xl mx-auto">
-          Master Coding with your <span className="text-primary italic">AI Sensei</span>
+        <h1 className="text-[64px] md:text-[72px] font-bold leading-[0.95] tracking-tighter mb-8 max-w-4xl mx-auto">
+          Find your coding gaps. <br />
+          Follow <span className="text-primary italic">one clear path.</span>
         </h1>
-        
+
         <p className="text-xl text-on-surface-variant max-w-2xl mx-auto mb-12">
-          Personalized lessons, interactive coding activities, and instant AI feedback designed for the next generation of Filipino tech talent.
+          Most learners jump between tutorials and AI answers and still feel lost. Codemm starts with a quick diagnostic, then builds a personalized path with hands-on practice and a mentor that explains the <span className="text-on-surface font-medium">why</span>.
         </p>
 
-        <div className="flex items-center justify-center gap-6 mb-24">
-          <button 
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
+          <button
             onClick={onStart}
-            className="px-10 py-5 bg-primary text-surface font-bold text-lg rounded-2xl hover:brightness-110 hover:shadow-[0_0_30px_rgba(192,193,255,0.3)] transition-all active:scale-95"
+            className="group px-10 py-5 bg-primary text-surface font-bold text-lg rounded-2xl hover:brightness-110 hover:shadow-[0_0_30px_rgba(192,193,255,0.3)] transition-all active:scale-95 flex items-center gap-3"
           >
-            Start Learning
+            Start free diagnostic
+            <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
           </button>
+          <span className="text-sm text-on-surface-variant">No sign-up. Takes about a minute.</span>
         </div>
       </motion.div>
 
-      {/* Tool Preview Mockup */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
+      {/* On-brand mock of the diagnostic result (no external assets) */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3, duration: 0.8 }}
-        className="relative max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden glass-card p-6 ai-glow mb-32"
+        className="relative max-w-4xl mx-auto rounded-3xl glass-card active-glow p-8 md:p-10 mb-32 text-left"
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent flex items-end p-12">
-          <div className="flex items-center gap-2 text-secondary font-mono text-sm">
-            <span className="w-3 h-3 rounded-full bg-secondary animate-bounce" />
-            Active Learning Session: JavaScript Fundamentals
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-surface font-bold">C</div>
+            <div>
+              <p className="text-sm font-bold">Your diagnostic result</p>
+              <p className="text-[11px] text-on-surface-variant uppercase tracking-widest font-semibold">Sample preview</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-3xl font-bold text-primary leading-none">60%</p>
+            <p className="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Readiness</p>
           </div>
         </div>
-        <img 
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBplpVFjDc58-GFW_SyMywdyazaTaoM6MZSdWwku1im7hqvWYFcm55egaLyP4HHb5VvyV4Qk2wqboBHJyfaMjGC9JLWy13XH3WowCkht8Q388igJNvrCXp6wYxfrwllJT-TCmcKkvfXGy0nY4hUTvVZESuxFUMuOi3uFLZ4saXfeDdAmD6RyUe7j9jlethWsr1eury5mdanIfhW3m2wd-el2I_zWnkFQwLt1eb5ecBthwLIhDOnsiUr6vt5mHD1-I3wcT3FcYs2Fg" 
-          alt="Dashboard Preview"
-          className="w-full h-full object-cover rounded-2xl opacity-80"
-        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            {[
+              { label: 'Arrays & Loops', pct: 92, color: 'bg-secondary', text: 'text-secondary' },
+              { label: 'Logic Formulation', pct: 88, color: 'bg-secondary', text: 'text-secondary' },
+              { label: 'Functions & Scope', pct: 45, color: 'bg-error/70', text: 'text-error' },
+              { label: 'Algorithms', pct: 30, color: 'bg-error/70', text: 'text-error' },
+            ].map((s) => (
+              <div key={s.label}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-bold">{s.label}</span>
+                  <span className={`text-xs font-bold ${s.text}`}>{s.pct}%</span>
+                </div>
+                <div className="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+                  <div className={`h-full ${s.color}`} style={{ width: `${s.pct}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            <div className="p-4 rounded-2xl bg-surface-container-low border border-secondary/20 flex items-center gap-3">
+              <CheckCircle2 size={18} className="text-secondary shrink-0" />
+              <span className="text-sm">Strong at <span className="font-bold">Arrays</span> &amp; <span className="font-bold">Logic</span></span>
+            </div>
+            <div className="p-4 rounded-2xl bg-surface-container-low border border-error/20 flex items-center gap-3">
+              <AlertCircle size={18} className="text-error shrink-0" />
+              <span className="text-sm">Start with <span className="font-bold">Functions</span> &amp; <span className="font-bold">Algorithms</span></span>
+            </div>
+            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20">
+              <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Next up</p>
+              <p className="text-sm font-bold">Algorithmic Thinking · 60m</p>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
-      {/* Features Grid */}
+      {/* How it works */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left mb-32">
         {features.map((feature, idx) => (
           <motion.div
@@ -100,11 +140,10 @@ export default function LandingScreen({ onStart }: Props) {
           <Terminal className="text-primary" />
           <span className="font-bold text-xl">Codemm</span>
         </div>
-        <p className="text-sm">© 2024 Codemm. Proudly built in the Philippines.</p>
+        <p className="text-sm">Guided coding mastery, built in the Philippines.</p>
         <div className="flex gap-8 text-sm font-medium">
-          <a href="#" className="hover:text-primary">Curriculum</a>
-          <a href="#" className="hover:text-primary">Pricing</a>
-          <a href="#" className="hover:text-primary">Privacy</a>
+          <button onClick={onStart} className="hover:text-primary transition-colors">Diagnostic</button>
+          <button onClick={onStart} className="hover:text-primary transition-colors">Get started</button>
         </div>
       </footer>
     </div>
