@@ -53,7 +53,16 @@ export default function App() {
   // Diagnostic result (falls back to a representative sample before a run)
   const [diagnosticResult, setDiagnosticResult] = useState<DiagnosticResult>(() => {
     const saved = localStorage.getItem('diagnosticResult');
-    return saved ? JSON.parse(saved) : sampleDiagnosticResult;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Only trust saved results that match the current shape.
+        if (parsed && parsed.readiness && Array.isArray(parsed.review)) return parsed;
+      } catch {
+        /* fall through to sample */
+      }
+    }
+    return sampleDiagnosticResult;
   });
 
   const handleCompleteDiagnostic = (result: DiagnosticResult) => {
@@ -156,6 +165,7 @@ export default function App() {
           moduleId={selectedModuleId}
           onStartCoding={() => setScreen('coding')}
           onAskAI={handleAskMentor}
+          onBack={() => setScreen('dashboard')}
         />;
       case 'coding':
         return <CodingScreen

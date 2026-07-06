@@ -18,6 +18,17 @@ export interface DiagnosticQuestion {
   code?: string;
   options: string[];
   correctIndex: number;
+  explanation: string;
+}
+
+export interface ReviewItem {
+  id: string;
+  prompt: string;
+  code?: string;
+  yourText: string;
+  correctText: string;
+  isCorrect: boolean;
+  explanation: string;
 }
 
 export interface SkillScore {
@@ -41,10 +52,12 @@ export interface DiagnosticResult {
   total: number;
   headline: string;
   summary: string;
+  readiness: { label: string; tone: 'strong' | 'developing' | 'weak' };
   skills: SkillScore[];
   strengths: SkillScore[];
   weakAreas: SkillScore[];
   recommendedPath: RecommendedModule[];
+  review: ReviewItem[];
 }
 
 /** A fake signed-in learner used across the dashboard and mentor. */
@@ -73,6 +86,7 @@ export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     code: 'const data = [10, 20, 30, 40];',
     options: ['10', '20', '30', '40'],
     correctIndex: 2,
+    explanation: 'Arrays are zero-indexed: index 0 is 10, index 1 is 20, and index 2 is 30.',
   },
   {
     id: 'q2',
@@ -81,6 +95,7 @@ export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     code: 'const result = (5 > 3) && (2 > 4);',
     options: ['true', 'false', 'undefined', 'Error'],
     correctIndex: 1,
+    explanation: '(5 > 3) is true, but (2 > 4) is false. The AND operator (&&) needs both sides true, so the result is false.',
   },
   {
     id: 'q3',
@@ -89,6 +104,7 @@ export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     code: 'function add(a, b = 2) {\n  return a + b;\n}\nconsole.log(add(3));',
     options: ['3', '5', 'NaN', 'undefined'],
     correctIndex: 1,
+    explanation: 'b has a default value of 2, so when you call add(3) with no second argument, it computes 3 + 2 = 5.',
   },
   {
     id: 'q4',
@@ -102,6 +118,7 @@ export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
       'let should be var',
     ],
     correctIndex: 1,
+    explanation: 'i < arr.length - 1 stops one step early. Use i < arr.length so the loop reaches the final index.',
   },
   {
     id: 'q5',
@@ -110,6 +127,7 @@ export const DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
     code: 'for (let i = 0; i < n; i++) {\n  process(items[i]);\n}',
     options: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)'],
     correctIndex: 2,
+    explanation: 'One pass that touches each of the n items scales linearly with the input — that is O(n).',
   },
 ];
 
@@ -195,7 +213,27 @@ export function computeDiagnostic(answers: Record<string, number>): DiagnosticRe
     summary = `You answered ${correctCount}/${total} correctly. Your path starts with the fundamentals so nothing feels shaky.`;
   }
 
-  return { score, correctCount, total, headline, summary, skills, strengths, weakAreas, recommendedPath };
+  const readiness: DiagnosticResult['readiness'] =
+    score >= 80
+      ? { label: 'Assessment-ready', tone: 'strong' }
+      : score >= 50
+      ? { label: 'Almost ready', tone: 'developing' }
+      : { label: 'Building foundations', tone: 'weak' };
+
+  const review: ReviewItem[] = DIAGNOSTIC_QUESTIONS.map((q) => {
+    const yourIndex = answers[q.id];
+    return {
+      id: q.id,
+      prompt: q.prompt,
+      code: q.code,
+      yourText: yourIndex !== undefined ? q.options[yourIndex] : '—',
+      correctText: q.options[q.correctIndex],
+      isCorrect: yourIndex === q.correctIndex,
+      explanation: q.explanation,
+    };
+  });
+
+  return { score, correctCount, total, headline, summary, readiness, skills, strengths, weakAreas, recommendedPath, review };
 }
 
 /** Fallback result so the dashboard/results are populated even without a run. */

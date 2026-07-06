@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, RotateCcw, TrendingUp, Target, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowRight, RotateCcw, TrendingUp, Target, CheckCircle2, AlertCircle, XCircle, BookOpen } from 'lucide-react';
 import { DiagnosticResult } from '../data/demo-data';
 
 interface Props {
@@ -56,7 +56,14 @@ export default function ResultsScreen({ result, onStartPath, onOpenModule, onRet
               Diagnostic complete
             </span>
             <h1 className="text-4xl font-bold tracking-tight mb-3">{result.headline}</h1>
-            <p className="text-lg text-on-surface-variant max-w-xl">{result.summary}</p>
+            <p className="text-lg text-on-surface-variant max-w-xl mb-4">{result.summary}</p>
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold ${
+              result.readiness.tone === 'strong' ? 'bg-secondary/10 text-secondary'
+              : result.readiness.tone === 'developing' ? 'bg-primary/10 text-primary'
+              : 'bg-error/10 text-error'
+            }`}>
+              <Target size={16} /> Assessment readiness: {result.readiness.label}
+            </div>
           </div>
         </div>
 
@@ -161,6 +168,43 @@ export default function ResultsScreen({ result, onStartPath, onOpenModule, onRet
                 <span className="text-xs font-mono text-on-surface-variant shrink-0">{mod.minutes}m</span>
                 <ArrowRight size={16} className="text-on-surface-variant group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
               </motion.button>
+            ))}
+          </div>
+        </div>
+
+        {/* Answer review */}
+        <div className="glass-card rounded-[32px] p-8">
+          <div className="flex items-center gap-3 mb-6">
+            <BookOpen className="text-primary" size={22} />
+            <h3 className="text-2xl font-bold">Review your answers</h3>
+          </div>
+          <div className="space-y-4">
+            {result.review.map((r) => (
+              <div
+                key={r.id}
+                className={`p-5 rounded-2xl border ${r.isCorrect ? 'border-secondary/30 bg-secondary/5' : 'border-error/30 bg-error/5'}`}
+              >
+                <div className="flex items-start gap-3 mb-3">
+                  {r.isCorrect ? (
+                    <CheckCircle2 className="text-secondary shrink-0 mt-0.5" size={20} />
+                  ) : (
+                    <XCircle className="text-error shrink-0 mt-0.5" size={20} />
+                  )}
+                  <p className="font-bold flex-1">{r.prompt}</p>
+                </div>
+                {r.code && (
+                  <pre className="p-3 mb-3 rounded-xl bg-[#020b14] border border-outline-variant/10 font-mono text-xs text-on-surface overflow-x-auto whitespace-pre-wrap">
+                    {r.code}
+                  </pre>
+                )}
+                <div className="text-sm space-y-1">
+                  {!r.isCorrect && (
+                    <p className="text-on-surface-variant">Your answer: <span className="text-error font-mono font-bold">{r.yourText}</span></p>
+                  )}
+                  <p className="text-on-surface-variant">Correct: <span className="text-secondary font-mono font-bold">{r.correctText}</span></p>
+                  <p className="text-on-surface-variant pt-2">{r.explanation}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>

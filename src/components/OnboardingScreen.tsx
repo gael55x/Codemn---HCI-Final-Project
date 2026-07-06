@@ -31,44 +31,24 @@ export default function OnboardingScreen({ onComplete }: Props) {
 
   const steps = [
     {
-      title: 'Choose your mastery',
-      subtitle: "We'll tailor your exercises to your starting point.",
+      title: 'What do you want to build?',
+      subtitle: 'This sets your learning path — you can switch anytime.',
       options: [
-        { id: 'beginner', title: 'Beginner', desc: 'New to logic or starting a first language.', icon: <Terminal className="text-secondary" /> },
-        { id: 'intermediate', title: 'Intermediate', desc: 'Comfortable with syntax, learning architecture.', icon: <Cpu className="text-secondary" /> },
-        { id: 'advanced', title: 'Advanced', desc: 'Expert in logic, focusing on optimization.', icon: <Layout className="text-secondary" /> },
-      ],
-      key: 'level' as const
-    },
-    {
-      title: 'Select your learning path',
-      subtitle: 'Choose the area you want to focus on.',
-      options: [
-        { id: 'frontend', title: 'Frontend Development', desc: 'React, JavaScript, and modern UI frameworks.', icon: <Code2 className="text-primary" /> },
-        { id: 'backend', title: 'Backend Development', desc: 'Node.js, databases, and API design.', icon: <Terminal className="text-primary" /> },
-        { id: 'fullstack', title: 'Full-Stack', desc: 'Complete web development from front to back.', icon: <Layout className="text-primary" /> },
+        { id: 'frontend', title: 'Frontend', desc: 'JavaScript, React, and modern UI.', icon: <Code2 className="text-primary" /> },
+        { id: 'backend', title: 'Backend', desc: 'Node.js, databases, and API design.', icon: <Terminal className="text-primary" /> },
+        { id: 'fullstack', title: 'Full-Stack', desc: 'End-to-end web development.', icon: <Layout className="text-primary" /> },
       ],
       key: 'path' as const
     },
     {
-      title: "What's your goal?",
-      subtitle: 'Help us understand what you want to achieve.',
+      title: 'How much have you coded before?',
+      subtitle: "We'll calibrate your starting point.",
       options: [
-        { id: 'career', title: 'Career Switch', desc: 'Transition into a tech career.', icon: <Target className="text-tertiary" /> },
-        { id: 'upskill', title: 'Upskill', desc: 'Improve existing programming skills.', icon: <Zap className="text-tertiary" /> },
-        { id: 'hobby', title: 'Personal Projects', desc: 'Build projects for fun and learning.', icon: <Code2 className="text-tertiary" /> },
+        { id: 'beginner', title: 'Beginner', desc: 'New to logic or a first language.', icon: <Terminal className="text-secondary" /> },
+        { id: 'intermediate', title: 'Intermediate', desc: 'Comfortable with syntax, learning deeper.', icon: <Cpu className="text-secondary" /> },
+        { id: 'advanced', title: 'Advanced', desc: 'Solid on logic, focusing on mastery.', icon: <Layout className="text-secondary" /> },
       ],
-      key: 'goal' as const
-    },
-    {
-      title: 'How much time can you commit?',
-      subtitle: "We'll adjust your learning pace accordingly.",
-      options: [
-        { id: 'light', title: '30 min/day', desc: 'Light pace, perfect for busy schedules.', icon: <Clock className="text-secondary" /> },
-        { id: 'moderate', title: '1 hour/day', desc: 'Balanced learning with steady progress.', icon: <Clock className="text-secondary" /> },
-        { id: 'intensive', title: '2+ hours/day', desc: 'Intensive learning for fast-track mastery.', icon: <Clock className="text-secondary" /> },
-      ],
-      key: 'time' as const
+      key: 'level' as const
     }
   ];
 
@@ -76,7 +56,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
   const currentSelection = selections[currentStep.key];
 
   const handleNext = () => {
-    if (step < 4) {
+    if (step < steps.length) {
       setStep(step + 1);
     } else {
       onComplete(selections);
@@ -98,12 +78,12 @@ export default function OnboardingScreen({ onComplete }: Props) {
         <div className="px-12 pt-12 pb-6">
           <div className="flex justify-between items-center mb-4">
             <span className="text-2xl font-bold text-primary tracking-tight">Codemm</span>
-            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">Step {step} of 4</span>
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">Step {step} of {steps.length}</span>
           </div>
           <div className="w-full h-1 bg-surface-container rounded-full overflow-hidden">
             <motion.div 
               className="h-full bg-gradient-to-r from-secondary to-primary"
-              animate={{ width: `${(step / 4) * 100}%` }}
+              animate={{ width: `${(step / steps.length) * 100}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -158,7 +138,7 @@ export default function OnboardingScreen({ onComplete }: Props) {
                   disabled={!currentSelection}
                   className="group px-10 py-5 bg-primary text-surface font-bold rounded-2xl hover:brightness-110 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  {step === 4 ? 'Get Started' : 'Continue'}
+                  {step === steps.length ? 'Start diagnostic' : 'Continue'}
                   <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>

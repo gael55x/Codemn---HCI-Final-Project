@@ -270,6 +270,13 @@ export default function DashboardScreen({
                 <span className="text-[8px] font-bold text-on-surface-variant uppercase tracking-widest">Readiness</span>
               </div>
             </div>
+            <span className={`px-3 py-1 mb-3 rounded-full text-[11px] font-bold ${
+              diagnosticResult.readiness.tone === 'strong' ? 'bg-secondary/10 text-secondary'
+              : diagnosticResult.readiness.tone === 'developing' ? 'bg-primary/10 text-primary'
+              : 'bg-error/10 text-error'
+            }`}>
+              {diagnosticResult.readiness.label}
+            </span>
             <p className="text-sm text-on-surface-variant mb-5">{diagnosticResult.correctCount}/{diagnosticResult.total} correct on your diagnostic.</p>
             <button
               onClick={onViewResults}

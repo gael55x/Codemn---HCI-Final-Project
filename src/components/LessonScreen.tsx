@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { 
-  ChevronRight, 
+import {
+  ChevronRight,
   Code2,
-  Copy
+  Copy,
+  ArrowLeft
 } from 'lucide-react';
 
 interface Props {
   moduleId: string;
   onStartCoding: () => void;
   onAskAI: (text: string) => void;
+  onBack: () => void;
 }
 
 const lessonData: Record<string, {
@@ -224,7 +226,7 @@ function bfs(graph, start) {
   }
 };
 
-export default function LessonScreen({ moduleId, onStartCoding, onAskAI }: Props) {
+export default function LessonScreen({ moduleId, onStartCoding, onAskAI, onBack }: Props) {
   const [copied, setCopied] = useState(false);
   
   const lesson = lessonData[moduleId] || lessonData['js-fundamentals'];
@@ -243,10 +245,16 @@ export default function LessonScreen({ moduleId, onStartCoding, onAskAI }: Props
     >
       {/* Header */}
       <div>
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors mb-6 text-sm font-medium"
+        >
+          <ArrowLeft size={18} /> Back to roadmap
+        </button>
         <div className="flex items-center gap-3 mb-4">
           <span className="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] font-bold rounded-full uppercase tracking-widest">{lesson.module}</span>
           <div className="flex items-center gap-2 text-xs text-on-surface-variant font-medium">
-            Library <ChevronRight size={14} /> {moduleId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+            Roadmap <ChevronRight size={14} /> {lesson.title}
           </div>
         </div>
         <h2 className="text-5xl font-bold tracking-tight mb-6">{lesson.title}</h2>
