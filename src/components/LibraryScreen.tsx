@@ -125,7 +125,7 @@ export default function LibraryScreen({ onSelectModule }: Props) {
         >
           All Paths
         </button>
-        {['Frontend', 'Backend', 'Fullstack', 'DevOps', 'Mobile'].map(cat => (
+        {['Frontend', 'Backend', 'Fullstack'].map(cat => (
           <button 
             key={cat} 
             onClick={() => setActiveFilter(cat)}

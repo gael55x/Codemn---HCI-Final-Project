@@ -14,10 +14,8 @@ import LessonScreen from './components/LessonScreen';
 import LibraryScreen from './components/LibraryScreen';
 import CodingScreen from './components/CodingScreen';
 import SettingsScreen from './components/SettingsScreen';
-import SupportScreen from './components/SupportScreen';
 import SyllabusScreen from './components/SyllabusScreen';
 import ProgressScreen from './components/ProgressScreen';
-import ReviewScreen from './components/ReviewScreen';
 import { ScreenType, UserPreferences } from './types';
 import { askMentor } from './services/geminiService';
 import { mentorWelcome, sampleDiagnosticResult, DiagnosticResult } from './data/demo-data';
@@ -107,6 +105,7 @@ export default function App() {
           diagnosticResult={diagnosticResult}
           onResumeLesson={() => { setSelectedModuleId('js-fundamentals'); setScreen('lesson'); }}
           onViewSyllabus={() => setScreen('syllabus')}
+          onViewResults={() => setScreen('results')}
         />;
       case 'library':
         return <LibraryScreen onSelectModule={(id) => { setSelectedModuleId(id); setScreen('lesson'); }} />;
@@ -121,14 +120,10 @@ export default function App() {
           onBack={() => setScreen('lesson')} 
           onAskAI={handleAskMentor}
         />;
-      case 'review':
-        return <ReviewScreen />;
       case 'progress':
         return <ProgressScreen />;
       case 'settings':
         return <SettingsScreen />;
-      case 'support':
-        return <SupportScreen />;
       case 'syllabus':
         return <SyllabusScreen onBack={() => setScreen('dashboard')} />;
       default:

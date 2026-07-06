@@ -49,9 +49,9 @@ export interface DiagnosticResult {
 
 /** A fake signed-in learner used across the dashboard and mentor. */
 export const demoUser = {
-  name: 'Andrea Cruz',
-  firstName: 'Andrea',
-  email: 'andrea@codemm.app',
+  name: 'Gaille Amolong',
+  firstName: 'Gaille',
+  email: 'gaille@codemm.app',
   level: 12,
   streak: 5,
 };

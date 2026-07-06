@@ -1,25 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Library, 
-  RotateCcw, 
-  TrendingUp, 
-  Settings, 
-  HelpCircle,
-  Gem,
-  Bell,
-  Search,
+import {
+  LayoutDashboard,
+  Library,
+  TrendingUp,
+  Settings,
   Flame,
   Milestone,
-  MessageSquare,
-  History,
-  Paperclip,
-  MoreVertical,
   X,
   Send,
   Zap,
-  Menu,
-  Bot,
   User,
   Sun,
   Moon
@@ -65,9 +54,18 @@ export default function AppLayout({
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'library', icon: Library, label: 'Library' },
-    { id: 'review', icon: RotateCcw, label: 'Review' },
     { id: 'progress', icon: TrendingUp, label: 'Progress' },
   ];
+
+  const screenTitles: Partial<Record<ScreenType, string>> = {
+    dashboard: 'Dashboard',
+    library: 'Library',
+    progress: 'Progress',
+    lesson: 'Lesson',
+    coding: 'Coding activity',
+    syllabus: 'Syllabus',
+    settings: 'Settings',
+  };
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
@@ -115,27 +113,16 @@ export default function AppLayout({
 
         <div className="mt-auto space-y-4 pt-8 border-t border-outline-variant/10">
           <div className="space-y-1">
-            <button 
+            <button
               onClick={() => setScreen('settings')}
               className={`w-full flex items-center gap-4 px-4 py-2 rounded-xl transition-all ${
-                activeScreen === 'settings' 
-                ? 'bg-primary/10 text-primary' 
+                activeScreen === 'settings'
+                ? 'bg-primary/10 text-primary'
                 : 'text-on-surface-variant hover:bg-surface-container-high'
               }`}
             >
               <Settings size={20} />
               <span className="text-sm font-medium">Settings</span>
-            </button>
-            <button 
-              onClick={() => setScreen('support')}
-              className={`w-full flex items-center gap-4 px-4 py-2 rounded-xl transition-all ${
-                activeScreen === 'support' 
-                ? 'bg-primary/10 text-primary' 
-                : 'text-on-surface-variant hover:bg-surface-container-high'
-              }`}
-            >
-              <HelpCircle size={20} />
-              <span className="text-sm font-medium">Support</span>
             </button>
           </div>
         </div>
@@ -143,13 +130,10 @@ export default function AppLayout({
 
       {/* Topbar */}
       <header className="fixed top-0 right-0 left-[260px] h-16 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/10 flex justify-between items-center px-8 z-40">
-        <div className="flex-1 max-w-md relative">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
-          <input 
-            type="text" 
-            placeholder="Search modules, code, logic..."
-            className="w-full bg-surface-container-low border border-outline-variant/20 rounded-full py-2 pl-12 pr-4 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
-          />
+        <div className="flex-1">
+          <span className="text-sm font-bold tracking-tight text-on-surface">
+            {screenTitles[activeScreen] ?? 'Codemm'}
+          </span>
         </div>
 
         <div className="flex items-center gap-6">
@@ -213,15 +197,6 @@ export default function AppLayout({
                 <div className="w-1.5 h-1.5 bg-tertiary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             )}
-          </div>
-
-          <div className="space-y-2 mb-6">
-            <button className="w-full flex items-center gap-3 p-3 rounded-xl bg-tertiary/10 text-tertiary font-bold transition-all text-sm">
-              <Bot size={18} /> AI Tutor
-            </button>
-            <button className="w-full flex items-center gap-3 p-3 rounded-xl text-on-surface-variant hover:bg-surface-variant/50 transition-all text-sm">
-              <History size={18} /> Session History
-            </button>
           </div>
 
           <div className="mt-auto relative">

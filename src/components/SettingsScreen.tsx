@@ -13,10 +13,10 @@ import {
   Moon
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { demoUser } from '../data/demo-data';
 
 export default function SettingsScreen() {
   const [notifications, setNotifications] = useState(true);
-  const [sound, setSound] = useState(true);
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -40,8 +40,8 @@ export default function SettingsScreen() {
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 rounded-xl bg-surface-container-low/50 border border-outline-variant/10 hover:border-primary/30 transition-all cursor-pointer">
               <div>
-                <p className="font-bold">Gaille Ivan Anoos</p>
-                <p className="text-sm text-on-surface-variant">gaille@example.com</p>
+                <p className="font-bold">{demoUser.name}</p>
+                <p className="text-sm text-on-surface-variant">{demoUser.email}</p>
               </div>
               <ChevronRight className="text-on-surface-variant" size={20} />
             </div>
@@ -90,49 +90,6 @@ export default function SettingsScreen() {
                   {theme === 'dark' ? <Moon size={14} className="text-surface" /> : <Sun size={14} className="text-surface" />}
                 </div>
               </button>
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-surface-container-low/50 border border-outline-variant/10 hover:border-primary/30 transition-all cursor-pointer">
-              <div>
-                <p className="font-bold">Language</p>
-                <p className="text-sm text-on-surface-variant">English</p>
-              </div>
-              <ChevronRight className="text-on-surface-variant" size={20} />
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-surface-container-low/50 border border-outline-variant/10">
-              <div>
-                <p className="font-bold">Sound Effects</p>
-                <p className="text-sm text-on-surface-variant">Enable audio feedback</p>
-              </div>
-              <button 
-                onClick={() => setSound(!sound)}
-                className={`w-14 h-8 rounded-full transition-all ${sound ? 'bg-primary' : 'bg-surface-container'}`}
-              >
-                <div className={`w-6 h-6 bg-white rounded-full transition-all ${sound ? 'ml-7' : 'ml-1'}`} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Privacy */}
-        <div className="glass-card rounded-3xl p-8">
-          <div className="flex items-center gap-4 mb-6">
-            <Shield className="text-primary" size={24} />
-            <h3 className="text-2xl font-bold">Privacy & Security</h3>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-surface-container-low/50 border border-outline-variant/10 hover:border-primary/30 transition-all cursor-pointer">
-              <div>
-                <p className="font-bold">Privacy Policy</p>
-                <p className="text-sm text-on-surface-variant">View our privacy policy</p>
-              </div>
-              <ChevronRight className="text-on-surface-variant" size={20} />
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-surface-container-low/50 border border-outline-variant/10 hover:border-primary/30 transition-all cursor-pointer">
-              <div>
-                <p className="font-bold">Terms of Service</p>
-                <p className="text-sm text-on-surface-variant">Read our terms</p>
-              </div>
-              <ChevronRight className="text-on-surface-variant" size={20} />
             </div>
           </div>
         </div>
